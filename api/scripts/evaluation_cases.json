@@ -1,0 +1,34 @@
+{
+  "notes": [
+    {"key": "focus", "title": "番茄钟专注", "body_md": "学习时采用番茄钟：专注工作二十五分钟，再休息五分钟。四轮后休息十五分钟。"},
+    {"key": "review", "title": "间隔复习", "body_md": "学新概念后在一天、三天和一周安排复习，避免短期记忆迅速遗忘。"},
+    {"key": "sleep", "title": "睡眠记录", "body_md": "晚上十一点前停止看屏幕，睡前阅读纸质书；早晨七点起床。"},
+    {"key": "running", "title": "运动记录", "body_md": "每周二与周五慢跑三公里，跑后补水和拉伸。"},
+    {"key": "reading", "title": "论文阅读方法", "body_md": "阅读论文先看摘要、图表和结论，再整理问题与证据。"},
+    {"key": "backup", "title": "项目备份", "body_md": "重要代码每天提交版本库，每周日把数据库导出到离线硬盘。"},
+    {"key": "food", "title": "饮食记录", "body_md": "午餐尽量搭配蔬菜、蛋白质和全谷物，下午喝水而不是含糖饮料。"},
+    {"key": "travel", "title": "旅行清单", "body_md": "出发前检查车票、证件和充电器；到站后用地图确认住宿路线。"}
+  ],
+  "questions": [
+    {"group": "exact", "q": "番茄钟", "targets": ["focus"]},
+    {"group": "exact", "q": "一周安排复习", "targets": ["review"]},
+    {"group": "exact", "q": "慢跑三公里", "targets": ["running"]},
+    {"group": "exact", "q": "摘要、图表", "targets": ["reading"]},
+    {"group": "exact", "q": "离线硬盘", "targets": ["backup"]},
+    {"group": "paraphrase", "q": "怎样安排工作与短暂放松", "targets": ["focus"]},
+    {"group": "paraphrase", "q": "如何避免学完很快忘记", "targets": ["review"]},
+    {"group": "paraphrase", "q": "怎样减少睡前电子屏幕影响", "targets": ["sleep"]},
+    {"group": "paraphrase", "q": "跑步结束后做什么", "targets": ["running"]},
+    {"group": "paraphrase", "q": "备份数据库应该怎么做", "targets": ["backup"]},
+    {"group": "cross", "q": "学习时怎样保持专注并定期复习", "targets": ["focus", "review"]},
+    {"group": "cross", "q": "如何改善睡眠并安排跑步", "targets": ["sleep", "running"]},
+    {"group": "cross", "q": "阅读论文和备份项目分别有什么步骤", "targets": ["reading", "backup"]},
+    {"group": "cross", "q": "旅行时需要准备物品和饮水习惯", "targets": ["travel", "food"]},
+    {"group": "cross", "q": "怎样安排学习专注和健康午餐", "targets": ["focus", "food"]},
+    {"group": "no_answer", "q": "火星车今天在哪里", "targets": []},
+    {"group": "no_answer", "q": "量子计算机的价格是多少", "targets": []},
+    {"group": "no_answer", "q": "伦敦明天天气如何", "targets": []},
+    {"group": "no_answer", "q": "股票收盘行情是多少", "targets": []},
+    {"group": "no_answer", "q": "猫什么时候接种疫苗", "targets": []}
+  ]
+}
