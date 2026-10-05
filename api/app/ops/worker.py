@@ -4,10 +4,12 @@ import logging
 import signal
 import time
 
-from app.indexer import claim_job, process_job, retry_job
+from app.core.request_context import correlation
+from app.knowledge.indexer import claim_job, process_job, retry_job
 
 
 logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("index-worker")
 running = True
 
 
@@ -18,7 +20,7 @@ def stop(_signum: int, _frame: object) -> None:
 
 signal.signal(signal.SIGTERM, stop)
 signal.signal(signal.SIGINT, stop)
-logging.info("index worker ready")
+log.info("worker_ready worker=index")
 while running:
     try:
         job_id = claim_job()
@@ -26,10 +28,12 @@ while running:
             time.sleep(2)
             continue
         try:
-            process_job(job_id)
+            # 以任务 ID 作为关联 ID，使本任务的日志行与审计行可互相印证。
+            with correlation(job_id):
+                process_job(job_id)
         except Exception as exc:
-            logging.exception("index job failed: %s", job_id)
+            log.exception("index_job_failed request_id=%s", job_id)
             retry_job(job_id, type(exc).__name__)
     except Exception:
-        logging.exception("index worker database unavailable")
+        log.exception("index_worker_unavailable")
         time.sleep(5)

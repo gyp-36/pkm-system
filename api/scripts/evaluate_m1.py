@@ -8,8 +8,8 @@ from collections import defaultdict
 from pathlib import Path
 
 import httpx
-from app.db import SessionLocal
-from app.maintenance import purge_accounts
+from app.core.db import SessionLocal
+from app.ops.maintenance import purge_accounts
 
 
 CASES = json.loads(Path(__file__).with_name("evaluation_cases.json").read_text())

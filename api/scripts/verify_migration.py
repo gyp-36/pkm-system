@@ -8,7 +8,7 @@ from alembic.config import Config
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
-from app.integrity import integrity_counts
+from app.ops.integrity import integrity_counts
 
 
 def main() -> None:
@@ -70,7 +70,7 @@ def main() -> None:
             connection.execute(text("DELETE FROM pkm_note_tags WHERE note_id=:note_id AND tag_id=:tag_id AND user_id=:user_id"), {"note_id": note_id, "tag_id": orphan_tag_id, "user_id": user_id})
         test_engine.dispose()
         command.downgrade(config, "0004_core_simplify")
-        print("Migration 0003/0004/0005 upgrade, enum data, index budget, zero FKs, integrity checks, and downgrades passed")
+        print("迁移 0003/0004/0005 的升级、枚举数据、索引预算、无外键约束、完整性检查和降级均已通过")
     finally:
         os.environ["DATABASE_URL"] = original_url
         with admin.connect() as connection:

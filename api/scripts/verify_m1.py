@@ -9,9 +9,9 @@ import zipfile
 import httpx
 from sqlalchemy import select
 
-from app.db import SessionLocal
-from app.maintenance import purge_accounts
-from app.models import NoteChunk
+from app.core.db import SessionLocal
+from app.ops.maintenance import purge_accounts
+from app.core.models import NoteChunk
 
 
 BASE = os.getenv("M1_TEST_API_URL", "http://api:8000")
@@ -58,10 +58,8 @@ def main() -> None:
             single_export = alice.get(f"/v1/notes/{note['id']}/export")
             assert single_export.status_code == 200, single_export.text[:300]
             assert single_export.headers["content-type"].startswith("text/markdown")
-            assert "title: \"专注与休息\"" in single_export.text
-            assert 'notebook: "学习资料"' in single_export.text
-            assert 'tags: ["学习方法"]' in single_export.text
-            assert note["body_md"] in single_export.text
+            # Current M3 export contract preserves note content without injected metadata.
+            assert single_export.text == note["body_md"]
             all_export = alice.get("/v1/notes/export")
             assert all_export.status_code == 200, all_export.text[:300]
             assert all_export.headers["content-type"].startswith("application/zip")
@@ -86,7 +84,7 @@ def main() -> None:
             hybrid = call(alice, "GET", "/v1/search", 200, params={"q": "如何分段工作并定时休息", "mode": "hybrid"})
             assert hybrid["semantic_status"] == "ready", hybrid
             assert any(item["note_id"] == note["id"] for item in hybrid["items"]), hybrid
-            print("semantic synonym hit:", [(item["title"], item["match_source"]) for item in hybrid["items"]])
+            print("语义同义词命中：", [(item["title"], item["match_source"]) for item in hybrid["items"]])
 
             updated = call(alice, "PATCH", f"/v1/notes/{note['id']}", 200, json={"version": current["version"], "body_md": "😀 用间隔复习法巩固知识。"})
             assert updated["version"] == 2
@@ -116,7 +114,7 @@ def main() -> None:
             assert not call(alice, "GET", "/v1/search", 200, params={"q": "间隔复习法", "mode": "hybrid"})["items"]
             call(alice, "POST", "/v1/auth/logout", 204)
             call(alice, "GET", "/v1/auth/me", 401)
-            print("M1 API acceptance checks passed")
+            print("M1 API 验收检查均已通过")
         finally:
             with SessionLocal.begin() as db:
                 purge_accounts(db, account_ids)

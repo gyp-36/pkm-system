@@ -27,8 +27,8 @@ def upgrade() -> None:
         sa.Column("available_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
     )
 
-    # Keep the latest active version for each note before enforcing one active
-    # job per note. Historical completed/stale rows remain available for audit.
+    # 在强制每篇笔记仅保留一个活跃任务之前，保留每篇笔记最新的活跃版本。
+    # 已完成或过期的历史记录仍会保留，以供审计。
     op.execute(
         """
         WITH ranked AS (

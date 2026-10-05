@@ -9,14 +9,17 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
-from app import model_connection
-from app.db import SessionLocal
+from app.assistant import model_connection
+from app.assistant.assistant import keyword_query_variants
+from app.core.db import SessionLocal
 from app.main import app
-from app.maintenance import purge_accounts
-from app.models import ModelConnection
+from app.ops.maintenance import purge_accounts
+from app.core.models import ModelConnection
 
 
 class FakeModelHandler(BaseHTTPRequestHandler):
+    search_evidence: list[list[dict]] = []
+
     def log_message(self, _format: str, *_args) -> None:
         pass
 
@@ -30,11 +33,20 @@ class FakeModelHandler(BaseHTTPRequestHandler):
         tool_messages = [m for m in messages if m["role"] == "tool"]
         if payload.get("tools") and not tool_messages:
             name = "search_personal_notes" if not (str(user_content).startswith("分析笔记") or str(user_content).startswith("{")) else "read_personal_note"
-            arguments = {"query": "番茄钟"} if name == "search_personal_notes" else {"note_id": re.search(r"[0-9a-f-]{36}", str(user_content)).group()}
+            arguments = {"question": str(user_content)} if name == "search_personal_notes" else {"note_id": re.search(r"[0-9a-f-]{36}", str(user_content)).group(), "include_citations": True}
             message = {"role": "assistant", "content": None, "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": name, "arguments": json.dumps(arguments)}}]}
             finish_reason = "tool_calls"
         elif tool_messages:
-            evidence = json.loads(tool_messages[-1]["content"])
+            try:
+                evidence = json.loads(tool_messages[-1]["content"])
+            except json.JSONDecodeError:
+                evidence = []
+            if isinstance(evidence, dict):
+                evidence = evidence.get("citations", [])
+            if not isinstance(evidence, list):
+                evidence = []
+            if evidence and "citation_id" in evidence[0]:
+                FakeModelHandler.search_evidence.append(evidence)
             marker = evidence[0]["citation_id"] if evidence else "S999"
             if str(user_content).startswith("分析笔记"):
                 content = json.dumps({"analysis": f"正文结构可更清晰 [{marker}]", "suggestions": [f"添加分段标题 [{marker}]"]}, ensure_ascii=False)
@@ -70,6 +82,9 @@ def checked(client: TestClient, method: str, path: str, expected: int, **kwargs)
 
 
 def main() -> None:
+    variants = keyword_query_variants("不要删除 A-17 在 2026 年 10 月的记录")
+    assert "A-17" in variants and "2026" in variants
+    FakeModelHandler.search_evidence.clear()
     server = ThreadingHTTPServer(("127.0.0.1", 0), FakeModelHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -93,17 +108,27 @@ def main() -> None:
             assert checked(alice, "POST", "/v1/model-connection/test", 200, json={})["ok"] is True
             notebook = checked(alice, "POST", "/v1/notebooks", 201, json={"name": "学习"})
             tag = checked(alice, "POST", "/v1/tags", 201, json={"name": "方法"})
+            matching_notes = [
+                checked(alice, "POST", "/v1/notes", 201, json={
+                    "title": f"时间管理素材 {index}",
+                    "body_md": f"番茄钟帮助我专注学习，第 {index} 条测试记录。",
+                })
+                for index in range(6)
+            ]
             note = checked(alice, "POST", "/v1/notes", 201, json={"title": "时间管理", "body_md": "番茄钟帮助我专注学习。"})
+            matching_by_id = {item["id"]: item for item in [*matching_notes, note]}
             answer = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "我记录了什么时间管理方法？"})
-            assert answer["citations"] and answer["citations"][0]["quote"] in note["body_md"]
-            assert answer["citations"][0]["note_id"] == note["id"]
+            assert answer["citations"] and answer["citations"][0]["quote"] in matching_by_id[answer["citations"][0]["note_id"]]["body_md"]
+            assert answer["citations"][0]["note_id"] in {note["id"], *(item["id"] for item in matching_notes)}
+            assert "时间管理" in keyword_query_variants("我记录了什么时间管理方法？")
+            assert FakeModelHandler.search_evidence[0] and len(FakeModelHandler.search_evidence[0]) == 5
             rejected = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "请给出一个无效引用"})
-            assert rejected["citations"] == [] and "未找到足够可核对" in rejected["answer"]
+            assert rejected["citations"] == [] and "无法核对的回答" in rejected["answer"]
             analysis = checked(alice, "POST", "/v1/assistant/analyze", 200, json={"note_id": note["id"]})
             assert analysis["suggestions"] and analysis["citations"]
             suggestion = checked(alice, "POST", "/v1/assistant/classify", 200, json={"note_id": note["id"]})
             assert suggestion["notebook_id"] == notebook["id"] and suggestion["tag_ids"] == [tag["id"]]
-            assert checked(alice, "GET", f"/v1/notes/{note['id']}", 200)["notebook_id"] is None  # Rejection makes no write.
+            assert checked(alice, "GET", f"/v1/notes/{note['id']}", 200)["notebook_id"] is None  # 拒绝请求时不会写入数据。
             updated = checked(alice, "PATCH", f"/v1/notes/{note['id']}", 200, json={"version": suggestion["note_version"], "notebook_id": suggestion["notebook_id"], "tag_ids": suggestion["tag_ids"]})
             assert updated["notebook_id"] == notebook["id"] and updated["tag_ids"] == [tag["id"]]
             checked(bob, "PUT", "/v1/model-connection", 200, json={"api_key": "sk-another-fake-secret", "model_name": "deepseek-flash"})
@@ -114,7 +139,7 @@ def main() -> None:
                 row = db.scalar(select(ModelConnection).where(ModelConnection.user_id == account_ids[0]))
                 assert row.credential_ciphertext == b"" and row.deleted_at is not None
             checked(alice, "POST", "/v1/assistant/ask", 409, json={"question": "还能提问吗？"})
-        print("M2 encrypted connection, fake model test, answer citations, analysis, classification review, and account isolation passed")
+        print("M2 本地关键词扩展、前 5 条证据、模型回答引用、分析、分类复核和账户隔离检查均已通过")
     finally:
         model_connection.DEEPSEEK_URL = original_url
         server.shutdown()

@@ -6,8 +6,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, inspect, pool, text
 
-from app.db import Base
-import app.models  # noqa: F401 - registers metadata
+from app.core.db import Base
+import app.core.models  # noqa: F401 - 注册模型元数据
 
 
 config = context.config
@@ -38,7 +38,7 @@ def run_migrations_online() -> None:
             raise RuntimeError("Both Alembic version tables exist; resolve this manually before migration")
         if legacy:
             connection.execute(text("ALTER TABLE alembic_version RENAME TO pkm_alembic_version"))
-        # Inspection begins a transaction. Finish it before Alembic owns its DDL transaction.
+        # 检查操作会开启事务；在 Alembic 接管 DDL 事务之前先结束该事务。
         connection.commit()
         context.configure(connection=connection, target_metadata=target_metadata, version_table="pkm_alembic_version")
         with context.begin_transaction():

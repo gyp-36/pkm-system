@@ -6,10 +6,10 @@ import uuid
 import httpx
 from sqlalchemy import select
 
-from app.db import SessionLocal
-from app.enums import AuditAction, AuditEntityType
-from app.maintenance import purge_accounts
-from app.models import Account, AuditEvent, Note, NoteRevision, Notebook, Tag, UserSession
+from app.core.db import SessionLocal
+from app.core.enums import AuditAction, AuditEntityType
+from app.ops.maintenance import purge_accounts
+from app.core.models import Account, AuditEvent, Note, NoteRevision, Notebook, Tag, UserSession
 
 
 BASE = os.getenv("M1_TEST_API_URL", "http://api:8000")
@@ -75,7 +75,7 @@ def main() -> None:
                 assert stored is not None and stored.deleted_at is not None
                 assert db.scalar(select(NoteRevision).where(NoteRevision.note_id == note_id)) is not None
                 assert any(e.action == AuditAction.DELETE and e.entity_type == AuditEntityType.NOTE for e in db.scalars(select(AuditEvent).where(AuditEvent.user_id == account_id)))
-            print("Lifecycle, revisions, audit, and soft-delete checks passed")
+            print("生命周期、版本记录、审计和软删除检查均已通过")
         finally:
             if account_id is not None:
                 with SessionLocal.begin() as db:

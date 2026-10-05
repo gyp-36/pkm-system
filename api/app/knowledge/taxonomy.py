@@ -8,10 +8,10 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 
-from app.auth import Db, UserId
-from app.enums import AuditAction, AuditEntityType
-from app.lifecycle import record_event, record_revision
-from app.models import Note, Notebook, NoteTag, Tag
+from app.auth.auth import Db, UserId
+from app.core.enums import AuditAction, AuditEntityType
+from app.core.lifecycle import record_event, record_revision
+from app.core.models import Note, Notebook, NoteTag, Tag
 
 
 router = APIRouter(prefix="/v1", tags=["taxonomy"])

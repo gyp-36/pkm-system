@@ -7,7 +7,7 @@ import time
 import httpx
 from sqlalchemy import text
 
-from app.db import engine
+from app.core.db import engine
 
 
 model = os.environ.get("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
@@ -32,4 +32,3 @@ with engine.begin() as connection:
     ).scalar_one()
 assert abs(distance) < 1e-5, distance
 print(json.dumps({"model": model, "dimensions": len(vector), "wall_seconds": round(elapsed, 3), "self_cosine_distance": distance, "ollama_total_duration_ns": payload.get("total_duration")}, ensure_ascii=False))
-

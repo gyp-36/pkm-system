@@ -2,8 +2,8 @@
 
 import json
 
-from app.db import engine
-from app.integrity import integrity_counts
+from app.core.db import engine
+from app.ops.integrity import integrity_counts
 
 
 def main() -> None:

@@ -13,10 +13,12 @@ from pydantic import BaseModel, Field, SecretStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth import Db, UserId
-from app.enums import ModelProvider
-from app.models import ModelConnection
-from app.rate_limit import check_limit
+from app.auth.auth import Db, UserId
+from app.core.enums import AuditAction, AuditEntityType, ModelProvider
+from app.core.lifecycle import record_event
+from app.core.models import ModelConnection
+from app.core.rate_limit import check_limit
+from app.prompts import load_prompt
 
 
 router = APIRouter(prefix="/v1/model-connection", tags=["model-connection"])
@@ -34,6 +36,10 @@ class ConnectionInput(BaseModel):
 class ConnectionTestInput(BaseModel):
     api_key: SecretStr | None = Field(default=None, min_length=10, max_length=512)
     model_name: ModelName | None = None
+
+
+class ModelSelectionInput(BaseModel):
+    model_name: ModelName
 
 
 def cipher() -> Fernet:
@@ -101,16 +107,38 @@ def get_connection(db: Db, user_id: UserId) -> dict:
 def put_connection(body: ConnectionInput, db: Db, user_id: UserId) -> dict:
     encrypted = cipher().encrypt(body.api_key.get_secret_value().encode("utf-8"))
     row = active_connection(db, user_id, lock=True)
+    created = row is None
     if row is None:
         row = ModelConnection(
             user_id=user_id, provider=ModelProvider.DEEPSEEK, model_name=body.model_name,
             base_url=None, credential_ciphertext=encrypted, credential_key_id=KEY_ID,
         )
         db.add(row)
+        db.flush()
     else:
         row.model_name = body.model_name
         row.credential_ciphertext = encrypted
         row.credential_key_id = KEY_ID
+    # 只记凭据「被替换」这个事实，绝不记录 api_key 明文
+    record_event(
+        db, user_id, AuditAction.CREATE if created else AuditAction.UPDATE,
+        AuditEntityType.MODEL_CONNECTION, row.id,
+        details={"changed": ["model_name", "credential"], "model_name": body.model_name},
+    )
+    db.commit()
+    db.refresh(row)
+    return public_connection(row)
+
+
+@router.patch("")
+def select_model(body: ModelSelectionInput, db: Db, user_id: UserId) -> dict:
+    row = active_connection(db, user_id, lock=True)
+    if row is None:
+        raise HTTPException(status_code=409, detail="请先配置聊天模型连接")
+    row.model_name = body.model_name
+    row.updated_at = datetime.now(timezone.utc)
+    record_event(db, user_id, AuditAction.UPDATE, AuditEntityType.MODEL_CONNECTION, row.id,
+                 details={"changed": ["model_name"], "model_name": body.model_name})
     db.commit()
     db.refresh(row)
     return public_connection(row)
@@ -124,8 +152,11 @@ def test_connection(body: ConnectionTestInput, db: Db, user_id: UserId) -> dict:
     key = body.api_key.get_secret_value() if body.api_key is not None else decrypt_key(row)
     model_name = body.model_name or (row.model_name if row is not None else "deepseek-flash")
     check_limit(user_id, "connection_test", limit=5)
+    if row is not None:
+        record_event(db, user_id, AuditAction.TEST, AuditEntityType.MODEL_CONNECTION, row.id,
+                     details={"model_name": model_name})
     try:
-        result = chat_model(key, model_name, max_tokens=16).invoke("只回复：连接成功")
+        result = chat_model(key, model_name, max_tokens=16).invoke(load_prompt("connection_test.txt"))
         if not str(result.content).strip():
             raise ValueError("empty model response")
     except Exception as exc:
@@ -139,6 +170,7 @@ def delete_connection(db: Db, user_id: UserId) -> None:
     row = active_connection(db, user_id, lock=True)
     if row is None:
         raise HTTPException(status_code=404, detail="尚未配置模型连接")
+    record_event(db, user_id, AuditAction.DELETE, AuditEntityType.MODEL_CONNECTION, row.id)
     row.credential_ciphertext = b""
     row.deleted_at = datetime.now(timezone.utc)
     db.commit()

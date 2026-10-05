@@ -53,7 +53,7 @@ def _convert(table: str, column: str, mapping: dict[str, int], *, reverse: bool 
 def upgrade() -> None:
     connection = op.get_bind()
     for (table, column), mapping in CODE_MAPS.items():
-        # Names are fixed migration constants. Unknown historic values must not become NULL.
+        # 名称是固定的迁移常量；未知的历史值不能被转换为 NULL。
         values = set(connection.execute(sa.text(f"SELECT DISTINCT {column} FROM {table}")).scalars())
         unknown = values - mapping.keys()
         if unknown:
