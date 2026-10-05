@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { askForConfirmation } from './confirmation'
 
 type Connection = { configured: boolean; provider: string | null; model_name: string | null; key_masked: string | null; updated_at: string | null }
 const emit = defineEmits<{ (e: 'status', configured: boolean): void }>()
@@ -14,7 +15,7 @@ async function request<T>(path: string, method = 'GET', data?: unknown): Promise
   const response = await fetch(path, { method, credentials: 'same-origin', headers: data === undefined ? {} : { 'Content-Type': 'application/json' }, body: data === undefined ? undefined : JSON.stringify(data) })
   if (!response.ok) {
     let detail = `请求失败（${response.status}）`
-    try { const payload = await response.json() as { detail?: string }; if (payload.detail) detail = payload.detail } catch { /* Keep status. */ }
+    try { const payload = await response.json() as { detail?: string }; if (payload.detail) detail = payload.detail } catch { /* 保留状态信息。 */ }
     throw new Error(detail)
   }
   return response.status === 204 ? undefined as T : await response.json() as T
@@ -49,8 +50,8 @@ function testConnection() {
   })
 }
 
-function deleteConnection() {
-  if (!window.confirm('删除已保存的模型连接？')) return
+async function deleteConnection() {
+  if (!await askForConfirmation({ message: '删除已保存的模型连接？', title: '删除模型连接', confirmLabel: '删除', danger: true })) return
   void run(async () => {
     await request<void>('/v1/model-connection', 'DELETE')
     apiKey.value = ''
