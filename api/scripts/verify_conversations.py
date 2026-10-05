@@ -1,13 +1,14 @@
-"""Persistent retrieval conversation API verification with disposable accounts."""
+"""Persistent knowledge-grounded conversation API verification with disposable accounts."""
 
 import uuid
 
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from app import conversations as conversations_module
+from app.assistant import conversations as conversations_module
 from app.main import app
-from app.maintenance import purge_accounts
-from app.db import SessionLocal
+from app.ops.maintenance import purge_accounts
+from app.core.db import SessionLocal
 
 
 def checked(client: TestClient, method: str, path: str, expected: int, **kwargs):
@@ -18,29 +19,32 @@ def checked(client: TestClient, method: str, path: str, expected: int, **kwargs)
 
 def main() -> None:
     account_ids: list[uuid.UUID] = []
-    original_search = conversations_module.search_notes
+    original_answer = conversations_module.answer_question
     calls = []
+    fail_next = False
 
-    def fake_search(_db, user_id, question, *, mode, limit):
-        calls.append((user_id, question, mode, limit))
+    def fake_answer(question, _db, user_id, history=None, *, limit_checked=False, trace=None):
+        nonlocal fail_next
+        if fail_next:
+            fail_next = False
+            raise HTTPException(status_code=409, detail="请先配置聊天模型连接")
+        calls.append((user_id, question, history or []))
         return {
-            "items": [{
+            "answer": f"根据笔记，答案是快照原文片段。[S1]（问题：{question[:24]}）",
+            "citations": [{
+                "citation_id": "S1",
                 "note_id": "7d2e5ec1-cbe3-43bc-b38a-33825a1b39de",
+                "note_version": 3,
                 "title": "检索验收笔记",
-                "notebook_id": None,
-                "version": 3,
                 "source_field": "body",
                 "start_offset": 4,
                 "end_offset": 12,
-                "snippet": "快照原文片段",
-                "updated_at": "2026-10-03T00:00:00+00:00",
-                "score": 0.02,
-                "match_source": "semantic",
+                "quote": "快照原文片段",
             }],
             "semantic_status": "unavailable" if question == "降级验证" else "ready",
         }
 
-    conversations_module.search_notes = fake_search
+    conversations_module.answer_question = fake_answer
     try:
         with TestClient(app) as alice, TestClient(app) as bob:
             suffix = uuid.uuid4().hex[:10]
@@ -63,7 +67,8 @@ def main() -> None:
             assert sent["title"] == "第一个问题"
             assert [item["role"] for item in sent["messages"]] == ["user", "assistant"]
             assert sent["messages"][0]["content"] == {"text": "第一个问题"}
-            assert sent["messages"][1]["content"]["items"][0]["snippet"] == "快照原文片段"
+            assert sent["messages"][1]["content"]["answer"].startswith("根据笔记")
+            assert sent["messages"][1]["content"]["citations"][0]["quote"] == "快照原文片段"
             assert sent["messages"][1]["content"]["semantic_status"] == "ready"
             checked(
                 alice,
@@ -72,16 +77,19 @@ def main() -> None:
                 201,
                 json={"question": "降级验证"},
             )
-            assert calls == [
-                (account_ids[0], "第一个问题", "hybrid", 10),
-                (account_ids[0], "降级验证", "hybrid", 10),
+            assert [call[:2] for call in calls] == [
+                (account_ids[0], "第一个问题"),
+                (account_ids[0], "降级验证"),
             ]
+            assert len(calls[0][2]) == 0
+            assert len(calls[1][2]) == 2
+            assert "[S1]" not in calls[1][2][1]["content"]
             restored = checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)
             assert len(restored["messages"]) == 4
             assert restored["messages"][0]["content"] == {"text": "第一个问题"}
-            assert restored["messages"][1]["content"]["items"][0]["snippet"] == "快照原文片段"
+            assert restored["messages"][1]["content"]["citations"][0]["quote"] == "快照原文片段"
             assert restored["messages"][3]["content"]["semantic_status"] == "unavailable"
-            long_question = "无字数限制" * 40
+            long_question = "无字数限制" * 500
             long_sent = checked(
                 alice,
                 "POST",
@@ -90,12 +98,35 @@ def main() -> None:
                 json={"question": long_question},
             )
             assert long_sent["messages"][0]["content"]["text"] == long_question
+            assert len(calls[-1][2]) == 4
+            for index in range(3):
+                checked(
+                    alice,
+                    "POST",
+                    f"/v1/assistant/conversations/{created['id']}/messages",
+                    201,
+                    json={"question": f"上下文上限验证 {index + 1}"},
+                )
+            assert [len(call[2]) for call in calls[-3:]] == [6, 8, 8]
+            assert len(calls[-3][2][4]["content"]) == conversations_module.MAX_HISTORY_MESSAGE_CHARS
+
+            before_failed_turn = len(checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)["messages"])
+            fail_next = True
+            checked(
+                alice,
+                "POST",
+                f"/v1/assistant/conversations/{created['id']}/messages",
+                409,
+                json={"question": "模型未配置"},
+            )
+            after_failed_turn = len(checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)["messages"])
+            assert after_failed_turn == before_failed_turn
             renamed = checked(alice, "PATCH", f"/v1/assistant/conversations/{created['id']}", 200, json={"title": "  自定义标题  "})
             assert renamed["title"] == "自定义标题"
             checked(alice, "PATCH", f"/v1/assistant/conversations/{created['id']}", 422, json={"title": "   "})
             checked(alice, "POST", "/v1/auth/logout", 204)
             checked(alice, "POST", "/v1/auth/login", 200, json={"email": alice_email, "password": password})
-            assert len(checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)["messages"]) == 6
+            assert len(checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)["messages"]) == 12
             checked(bob, "GET", f"/v1/assistant/conversations/{created['id']}", 404)
             checked(bob, "POST", f"/v1/assistant/conversations/{created['id']}/messages", 404, json={"question": "越权"})
             checked(bob, "PATCH", f"/v1/assistant/conversations/{created['id']}", 404, json={"title": "越权"})
@@ -107,9 +138,9 @@ def main() -> None:
             checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 404)
             with TestClient(app) as anonymous:
                 checked(anonymous, "GET", "/v1/assistant/conversations", 401)
-        print("persistent conversations, snapshots, retrieval fallback, unlimited questions, rename, delete, validation, and account isolation passed")
+        print("知识库持久化对话、引用、历史记录限制、失败轮次回滚、重命名、删除、校验和账户隔离检查均已通过")
     finally:
-        conversations_module.search_notes = original_search
+        conversations_module.answer_question = original_answer
         if account_ids:
             with SessionLocal.begin() as db:
                 purge_accounts(db, account_ids)
