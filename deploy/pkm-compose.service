@@ -1,0 +1,25 @@
+# 开机自启 pkm-system（可选）。
+# 安装：
+#   sudo cp deploy/pkm-compose.service /etc/systemd/system/
+#   # 按实际路径修改下面的 WorkingDirectory / 用户
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now pkm-compose
+
+[Unit]
+Description=PKM System (docker compose)
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/pkm-system
+# 若以非 root 用户运行 docker，请改为对应用户
+User=root
+ExecStart=/usr/bin/docker compose --env-file /opt/pkm-system/.env.prod -f compose.yaml -f compose.prod.yaml up -d
+ExecStop=/usr/bin/docker compose --env-file /opt/pkm-system/.env.prod -f compose.yaml -f compose.prod.yaml stop
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+# 生产前端镜像：构建静态产物后用 Nginx 托管，并在容器内反代 API，保持浏览器同源。
+# 与开发用的 Dockerfile（Vite dev server）区分开，不影响本地开发。
+
+FROM node:24-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+# npm run build = vue-tsc --noEmit && vite build（含类型检查）
+RUN npm run build
+
+FROM nginx:1.27-alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 与 compose.yaml 的端口映射（127.0.0.1:${WEB_HOST_PORT}:5173）保持一致
+EXPOSE 5173

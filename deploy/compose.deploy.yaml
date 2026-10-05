@@ -1,9 +1,15 @@
-name: pkm-system
+# 云服务器专用自包含 Compose：只用预构建镜像，不含 build，服务器上无需源码。
+#   docker load < pkm-api-prod.tar.gz
+#   docker load < pkm-web-prod.tar.gz
+#   docker compose --env-file .env.prod -f deploy/compose.deploy.yaml up -d --wait
+#
+# 与仓库内 compose.yaml / compose.prod.yaml 等价，但：
+#   - api / web 直接用已加载的 pkm-api:prod、pkm-web:prod 镜像（去掉了 build）
+#   - 已内置生产覆盖：OBJECT_STORAGE_PUBLIC_ENDPOINT 指向公网对象存储子域
+#   - 依赖镜像（pgvector / ollama / minio）由服务器自行拉取或复用
+#   - 不启用 office profile（2GB 实例不跑 ONLYOFFICE）
 
-x-api-image: &api-image
-  build:
-    context: ./api
-  image: pkm-api:local
+name: pkm-system
 
 x-api-environment: &api-environment
   APP_ENV: ${APP_ENV:-production}
@@ -14,12 +20,12 @@ x-api-environment: &api-environment
   EMBEDDING_MODEL: qwen3-embedding:0.6b
   VISION_MODEL: ${VISION_MODEL:-qwen3-vl:2b-instruct}
   OBJECT_STORAGE_ENDPOINT: http://minio:9000
-  OBJECT_STORAGE_PUBLIC_ENDPOINT: http://localhost:${OBJECT_STORAGE_HOST_PORT:-19000}
+  OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
   OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-pkm-files}
   OBJECT_STORAGE_REGION: us-east-1
-  OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?run scripts/dev-up.py to create local storage credentials}
-  OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?run scripts/dev-up.py to create local storage credentials}
-  PKM_CREDENTIAL_KEY: ${PKM_CREDENTIAL_KEY:?run scripts/dev-up.py to create a local encryption key}
+  OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:?请设置 OBJECT_STORAGE_ACCESS_KEY}
+  OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:?请设置 OBJECT_STORAGE_SECRET_KEY}
+  PKM_CREDENTIAL_KEY: ${PKM_CREDENTIAL_KEY:?请设置 PKM_CREDENTIAL_KEY}
 
 services:
   db:
@@ -53,8 +59,8 @@ services:
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
-      MINIO_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY:?run scripts/dev-up.py to create local storage credentials}
-      MINIO_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY:?run scripts/dev-up.py to create local storage credentials}
+      MINIO_ROOT_USER: ${OBJECT_STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${OBJECT_STORAGE_SECRET_KEY}
       MINIO_API_CORS_ALLOW_ORIGIN: "*"
     ports:
       - "127.0.0.1:${OBJECT_STORAGE_HOST_PORT:-19000}:9000"
@@ -63,7 +69,7 @@ services:
     restart: unless-stopped
 
   model-init:
-    <<: *api-image
+    image: pkm-api:prod
     profiles: ["model-setup"]
     environment:
       OLLAMA_URL: http://ollama:11434
@@ -76,7 +82,7 @@ services:
     restart: "no"
 
   migrate:
-    <<: *api-image
+    image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/alembic", "upgrade", "head"]
     depends_on:
@@ -85,14 +91,12 @@ services:
     restart: "no"
 
   api:
-    <<: *api-image
+    image: pkm-api:prod
     environment:
       <<: *api-environment
       NOTE_FILE_ROOT: /data/note-files
-      PKM_FILE_LINK_SECRET: ${ONLYOFFICE_JWT_SECRET:-local-onlyoffice-secret}
+      PKM_FILE_LINK_SECRET: ${PKM_FILE_LINK_SECRET:?请设置 PKM_FILE_LINK_SECRET}
       ONLYOFFICE_JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:-local-onlyoffice-secret}
-      ONLYOFFICE_PUBLIC_URL: http://localhost:${ONLYOFFICE_HOST_PORT:-8080}
-      ONLYOFFICE_INTERNAL_URL: http://documentserver
       PUBLIC_APP_URL: http://api:8000
     volumes:
       - note_files:/data/note-files
@@ -110,7 +114,7 @@ services:
     restart: unless-stopped
 
   worker:
-    <<: *api-image
+    image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.worker"]
     depends_on:
@@ -119,7 +123,7 @@ services:
     restart: unless-stopped
 
   digest-worker:
-    <<: *api-image
+    image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.digest_worker"]
     depends_on:
@@ -128,7 +132,7 @@ services:
     restart: unless-stopped
 
   ingest-worker:
-    <<: *api-image
+    image: pkm-api:prod
     environment:
       <<: *api-environment
       INGEST_WORKER_EXTENSIONS: pdf,png
@@ -143,7 +147,7 @@ services:
     restart: unless-stopped
 
   parse-worker:
-    <<: *api-image
+    image: pkm-api:prod
     environment:
       <<: *api-environment
       INGEST_WORKER_EXTENSIONS: md,docx,xlsx,doc,xls
@@ -159,7 +163,7 @@ services:
     restart: unless-stopped
 
   link-fetch-worker:
-    <<: *api-image
+    image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.link_fetch_worker"]
     depends_on:
@@ -167,35 +171,15 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
-  documentserver:
-    image: ${ONLYOFFICE_IMAGE:-onlyoffice/documentserver:latest}
-    profiles: ["office"]
-    environment:
-      JWT_ENABLED: "true"
-      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:-local-onlyoffice-secret}
-      ALLOW_PRIVATE_IP_ADDRESS: "true"
-      ALLOW_META_IP_ADDRESS: "true"
-    ports:
-      - "127.0.0.1:${ONLYOFFICE_HOST_PORT:-8080}:80"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost/healthcheck | grep -q true"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 120s
-    restart: unless-stopped
-
   web:
-    build:
-      context: ./web
-    image: pkm-web:local
+    image: pkm-web:prod
     ports:
       - "127.0.0.1:${WEB_HOST_PORT}:5173"
     depends_on:
       api:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/"]
       interval: 10s
       timeout: 5s
       retries: 12

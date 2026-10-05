@@ -1,0 +1,18 @@
+# 云服务器 HTTPS 入口（Caddy 自动申请/续期 Let's Encrypt 证书）。
+# 前提：pkm.example.com 与 storage.pkm.example.com 都已解析到本机公网 IP，
+#       且安全组/防火墙放行 80 与 443。
+# 安装：见 https://caddyserver.com/docs/install
+# 使用：把本文件复制到 /etc/caddy/Caddyfile，替换域名后 systemctl reload caddy
+
+pkm.example.com {
+    # 反代到宿主上 web 容器的端口映射（compose.yaml 映射 127.0.0.1:${WEB_HOST_PORT}:5173）
+    reverse_proxy 127.0.0.1:80
+}
+
+storage.pkm.example.com {
+    # 对象存储直连：文件分块上传/下载的预签名 URL 指向此域名
+    reverse_proxy 127.0.0.1:19000 {
+        # 预签名 URL 的签名包含 Host，必须原样透传
+        header_up Host {host}
+    }
+}

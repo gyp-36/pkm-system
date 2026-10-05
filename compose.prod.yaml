@@ -1,0 +1,55 @@
+# 生产环境 override：与 compose.yaml 叠加使用
+#   docker compose --env-file .env.prod -f compose.yaml -f compose.prod.yaml up -d
+#
+# 叠加规则：Compose 对 services.<name>.environment 按“键”合并，本文件中的键覆盖基础文件，
+# 其余键（含基础文件里 `<<: *api-environment` 展开的全部条目）保留。
+# 因此这里只需声明生产要改的那一项即可。
+#
+# 不启动 ONLYOFFICE：只要不加 `--profile office`，documentserver 就不会运行，
+# 相关在线编辑接口返回 503（api/app/knowledge/m3.py 已做守卫），核心功能不受影响。
+
+name: pkm-system
+
+services:
+  # 所有会生成“浏览器直连”预签名 URL 的服务，都要把对象存储地址换成公网子域名。
+  # 这两类调用都走 OBJECT_STORAGE_PUBLIC_ENDPOINT：
+  #   - core/object_storage.py::part_url        （分块上传，浏览器 PUT）
+  #   - core/object_storage.py::presign_download （文件下载/预览，浏览器 GET）
+  api:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  worker:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  digest-worker:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  ingest-worker:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  parse-worker:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  link-fetch-worker:
+    environment:
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
+
+  # 前端改为生产镜像：多阶段构建产物用 Nginx 静态托管，并在容器内反代 /v1 等 API 路径，
+  # 保持浏览器同源（前端用 credentials: 'same-origin' 请求相对路径）。
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.prod
+    image: pkm-web:prod
+    # 基础文件的 healthcheck 依赖 node（Vite 开发镜像）；生产镜像是 nginx，改用 busybox wget。
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
