@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>知识库切片预览</title>
+  <style>
+    :root { color-scheme: light; --ink:#20242b; --muted:#68707d; --line:#e5e8ed; --paper:#f5f6f8; --accent:#5368d8; --green:#198754; --amber:#a45b00; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button,input,select { font:inherit; }
+    .topbar { height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 max(24px,calc((100vw - 1320px)/2)); background:#fff; border-bottom:1px solid var(--line); }
+    .brand { font-weight:700; letter-spacing:.01em; }
+    .topbar a { color:var(--accent); text-decoration:none; }
+    main { width:min(1320px,100% - 40px); margin:28px auto 60px; }
+    .intro { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; margin-bottom:20px; }
+    h1 { margin:0; font-size:25px; line-height:1.3; }
+    .sub { margin:7px 0 0; color:var(--muted); }
+    .layout { display:grid; grid-template-columns:320px minmax(0,1fr); gap:18px; align-items:start; }
+    .panel { background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 6px 24px #18233a08; }
+    .files { position:sticky; top:16px; overflow:hidden; }
+    .files-head { padding:16px; border-bottom:1px solid var(--line); }
+    .file-tools { display:flex; gap:8px; margin-top:12px; }
+    .search { min-width:0; flex:1; padding:9px 11px; border:1px solid var(--line); border-radius:8px; outline:none; }
+    .search:focus { border-color:var(--accent); box-shadow:0 0 0 3px #5368d81a; }
+    .button { border:1px solid var(--line); background:#fff; border-radius:8px; padding:8px 11px; cursor:pointer; color:#394150; }
+    .button:hover { background:#f5f6f8; }
+    .file-list { max-height:calc(100vh - 220px); min-height:180px; overflow:auto; padding:8px; }
+    .file-item { display:block; width:100%; text-align:left; padding:11px 12px; margin:2px 0; border:0; border-radius:9px; background:transparent; cursor:pointer; color:inherit; }
+    .file-item:hover { background:#f6f7fa; }
+    .file-item.active { background:#eef0ff; }
+    .file-title { display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .file-meta { display:block; margin-top:4px; color:var(--muted); font-size:12px; }
+    .empty-list,.message { padding:24px 18px; color:var(--muted); text-align:center; }
+    .content { min-height:500px; padding:22px; }
+    .empty-state { display:grid; min-height:450px; place-items:center; color:var(--muted); text-align:center; }
+    .empty-state strong { display:block; margin-bottom:5px; color:#414958; font-size:16px; }
+    .note-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; padding-bottom:18px; border-bottom:1px solid var(--line); }
+    .note-head h2 { margin:0; font-size:20px; line-height:1.4; overflow-wrap:anywhere; }
+    .note-meta { margin-top:7px; color:var(--muted); font-size:12px; }
+    .summary { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill { padding:5px 9px; border-radius:99px; background:#f0f2f5; color:#4e5664; font-size:12px; white-space:nowrap; }
+    .pill.ready { background:#e9f6ef; color:var(--green); }
+    .pill.pending { background:#fff4df; color:var(--amber); }
+    .chunks { display:grid; gap:12px; padding-top:16px; }
+    .chunk { padding:16px 17px; border:1px solid var(--line); border-radius:11px; }
+    .chunk-top { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .chunk-name { font-weight:700; }
+    .chunk-kind { margin-left:8px; padding:2px 8px; border-radius:99px; background:#eef0ff; color:#4857ae; font-size:11px; }
+    .chunk-count,.chunk-loc { color:var(--muted); font-size:12px; }
+    .chunk-loc { margin-top:5px; overflow-wrap:anywhere; }
+    .chunk-body { margin:14px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    details { margin-top:11px; color:var(--muted); font-size:12px; }
+    summary { cursor:pointer; }
+    .json { overflow:auto; padding:10px; background:#f7f8fa; border-radius:7px; font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .toast { position:fixed; right:20px; bottom:20px; max-width:min(480px,calc(100vw - 40px)); padding:12px 15px; color:#fff; background:#303641; border-radius:10px; box-shadow:0 8px 28px #0002; }
+    .toast.error { background:#9f3333; }
+    [hidden] { display:none !important; }
+    @media(max-width:800px) { main { width:calc(100% - 24px); margin-top:18px; } .layout { grid-template-columns:1fr; } .files { position:static; } .file-list { max-height:280px; min-height:80px; } .content { min-height:400px; padding:16px; } .empty-state { min-height:260px; } .intro { align-items:flex-start; flex-direction:column; } .note-head { flex-direction:column; } .summary { justify-content:flex-start; } }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="brand">个人笔记 · 索引工具</div><a href="/">返回笔记应用</a></header>
+  <main>
+    <section class="intro"><div><h1>知识库切片预览</h1><p class="sub">读取数据库中当前版本已生成的切片，检查真实索引内容与来源位置。</p></div><button id="reload" class="button" type="button">刷新笔记列表</button></section>
+    <div class="layout">
+      <aside class="panel files">
+        <div class="files-head"><strong>已导入文件</strong><div class="file-tools"><input id="filter" class="search" type="search" placeholder="搜索笔记或文件名"><button id="refresh" class="button" type="button" aria-label="刷新">刷新</button></div></div>
+        <div id="fileList" class="file-list"><div class="message">正在加载笔记…</div></div>
+      </aside>
+      <section id="result" class="panel content"><div class="empty-state"><div><strong>选择左侧文件</strong>查看数据库中保存的切片</div></div></section>
+    </div>
+  </main>
+  <div id="toast" class="toast" hidden></div>
+  <script>
+    const supported = new Set(['md', 'docx', 'doc', 'pdf', 'xlsx', 'xls'])
+    const fileList = document.querySelector('#fileList')
+    const result = document.querySelector('#result')
+    const filter = document.querySelector('#filter')
+    const toast = document.querySelector('#toast')
+    let notes = []
+    let selectedId = ''
+    let toastTimer
+
+    function notify(message, isError = false) {
+      toast.textContent = message
+      toast.classList.toggle('error', isError)
+      toast.hidden = false
+      clearTimeout(toastTimer)
+      toastTimer = setTimeout(() => { toast.hidden = true }, 4200)
+    }
+
+    async function api(path) {
+      const response = await fetch(path, { credentials: 'same-origin' })
+      if (response.status === 401) throw new Error('请先登录笔记应用，再打开此预览页。')
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.detail || `请求失败（${response.status}）`)
+      return data
+    }
+
+    async function loadNotes() {
+      fileList.innerHTML = '<div class="message">正在加载笔记…</div>'
+      try {
+        const found = []
+        let cursor = ''
+        do {
+          const params = new URLSearchParams({ limit: '100' })
+          if (cursor) params.set('cursor', cursor)
+          const page = await api(`/v1/notes?${params}`)
+          found.push(...page.items)
+          cursor = page.next_cursor || ''
+        } while (cursor)
+        notes = found.filter(note => note.file && supported.has((note.file.extension || '').toLowerCase()))
+        if (!notes.some(note => note.id === selectedId)) selectedId = ''
+        renderFiles()
+        if (selectedId) await loadChunks(selectedId)
+        else if (!notes.length) showMessage('还没有可预览的已导入文件。先在笔记应用中上传并等待索引完成。')
+      } catch (error) {
+        fileList.innerHTML = '<div class="message">无法加载笔记列表</div>'
+        showMessage(error.message || '加载失败。请通过应用地址打开此页面，并确认 API 服务已启动。')
+      }
+    }
+
+    function renderFiles() {
+      const query = filter.value.trim().toLocaleLowerCase()
+      const visible = notes.filter(note => `${note.title} ${note.file.filename}`.toLocaleLowerCase().includes(query))
+      if (!visible.length) {
+        fileList.innerHTML = `<div class="empty-list">${notes.length ? '没有匹配的文件' : '没有已导入文件'}</div>`
+        return
+      }
+      fileList.replaceChildren(...visible.map(note => {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.className = `file-item${note.id === selectedId ? ' active' : ''}`
+        button.innerHTML = '<span class="file-title"></span><span class="file-meta"></span>'
+        button.querySelector('.file-title').textContent = note.title || '无标题笔记'
+        button.querySelector('.file-meta').textContent = `${note.file.filename} · ${note.index_status === 'ready' ? '索引完成' : note.index_status === 'pending' ? '等待索引' : '索引异常'}`
+        button.addEventListener('click', () => { selectedId = note.id; renderFiles(); loadChunks(note.id) })
+        return button
+      }))
+    }
+
+    function showMessage(message) {
+      result.innerHTML = ''
+      const state = document.createElement('div')
+      state.className = 'empty-state'
+      const text = document.createElement('div')
+      text.textContent = message
+      state.append(text)
+      result.append(state)
+    }
+
+    async function loadChunks(noteId) {
+      result.innerHTML = '<div class="empty-state">正在读取数据库切片…</div>'
+      try {
+        const data = await api(`/v1/notes/${encodeURIComponent(noteId)}/chunks`)
+        renderChunks(data)
+      } catch (error) {
+        showMessage(error.message || '读取切片失败。')
+      }
+    }
+
+    function renderChunks(data) {
+      result.innerHTML = ''
+      const note = notes.find(item => item.id === data.note_id)
+      const header = document.createElement('header')
+      header.className = 'note-head'
+      const heading = document.createElement('div')
+      const title = document.createElement('h2')
+      title.textContent = data.title
+      const meta = document.createElement('div')
+      meta.className = 'note-meta'
+      meta.textContent = `${note?.file?.filename || '笔记正文'} · 内容版本 ${data.content_version}`
+      heading.append(title, meta)
+      const summary = document.createElement('div')
+      summary.className = 'summary'
+      const status = document.createElement('span')
+      status.className = `pill ${data.index_status === 'ready' ? 'ready' : 'pending'}`
+      status.textContent = data.index_status === 'ready' ? '索引完成' : data.index_status === 'pending' ? '索引处理中' : '索引异常'
+      const count = document.createElement('span')
+      count.className = 'pill'
+      count.textContent = `${data.total_chunks} 个切片`
+      summary.append(status, count)
+      header.append(heading, summary)
+      result.append(header)
+
+      if (!data.chunks.length) {
+        const empty = document.createElement('div')
+        empty.className = 'empty-state'
+        empty.textContent = data.index_status === 'pending' ? '索引任务尚未完成，请稍后刷新。' : '当前版本没有保存的切片。文件可能尚未完成文本提取，或索引失败。'
+        result.append(empty)
+        return
+      }
+
+      const list = document.createElement('div')
+      list.className = 'chunks'
+      for (const chunk of data.chunks) {
+        const card = document.createElement('article')
+        card.className = 'chunk'
+        const top = document.createElement('div')
+        top.className = 'chunk-top'
+        const label = document.createElement('div')
+        label.innerHTML = `<span class="chunk-name">切片 ${String(chunk.ordinal + 1).padStart(2, '0')}</span><span class="chunk-kind"></span>`
+        label.querySelector('.chunk-kind').textContent = chunk.location?.kind || chunk.source
+        const length = document.createElement('span')
+        length.className = 'chunk-count'
+        length.textContent = `${chunk.end_offset - chunk.start_offset} 字符`
+        top.append(label, length)
+        const location = document.createElement('div')
+        location.className = 'chunk-loc'
+        const path = Array.isArray(chunk.location?.heading_path) ? ` · ${chunk.location.heading_path.join(' / ')}` : ''
+        location.textContent = `${chunk.source} · 偏移 [${chunk.start_offset}, ${chunk.end_offset})${path}`
+        const content = document.createElement('pre')
+        content.className = 'chunk-body'
+        content.textContent = chunk.content
+        card.append(top, location, content)
+        if (chunk.location && Object.keys(chunk.location).length) {
+          const details = document.createElement('details')
+          const summary = document.createElement('summary')
+          summary.textContent = '来源定位信息'
+          const json = document.createElement('pre')
+          json.className = 'json'
+          json.textContent = JSON.stringify(chunk.location, null, 2)
+          details.append(summary, json)
+          card.append(details)
+        }
+        list.append(card)
+      }
+      result.append(list)
+    }
+
+    document.querySelector('#reload').addEventListener('click', loadNotes)
+    document.querySelector('#refresh').addEventListener('click', loadNotes)
+    filter.addEventListener('input', renderFiles)
+    loadNotes()
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+分析笔记 [[note_id]]。请调用 read_personal_note，并设置 include_citations=true。
