@@ -1,0 +1,23 @@
+{
+  "notes_count": 36,
+  "notes_sha256": "84fc24fa8af8d1aa8b6ecce38214efcd3ae9ca667a3fabd10a24408141554d27",
+  "runtime_hashes": {
+    "app/assistant/assistant.py": "142ed79a687201f8f19a9938e1c9b18e5c6fe6118e0fcbbbc3b988fda7d8f92a",
+    "app/assistant/conversations.py": "e00d66612d1d31594e6b4ef1165ae140d9940060a533ff053a1c85f674f15422",
+    "app/assistant/tracing.py": "96e3f2cf77b3e4a8b952dbb7c307ae18309d6ff3d2c33d8eb72c249173d5a7aa",
+    "app/prompts/answer_system.txt": "4f31c4794189003e1100e6d5899c66ebf5d2c835150131ac5009bdc6585ceceb",
+    "app/knowledge/m3.py": "b2322cd987032dd63a089274bea541589abcd7b870cf124d12423b25b822bda8"
+  },
+  "secret_presence": {
+    "configured_model_key": [],
+    "raw_database_dsn": [],
+    "PKM_CREDENTIAL_KEY": []
+  },
+  "passed_secret_presence_check": true,
+  "database_access": "read_only",
+  "existing_conversations_modified": false,
+  "new_security_conversations": 5,
+  "application_mutation": "none",
+  "renderer_sha256": "fe98be95145d19c3be739b778faeecd36301a6143fff8212176d372cca6be695",
+  "renderer_unchanged": true
+}

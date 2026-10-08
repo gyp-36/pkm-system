@@ -1,0 +1,47 @@
+{
+  "mode": "real_routes_synthetic_db_controlled_model",
+  "results": [
+    {
+      "module": "scripts.verify_assistant_security",
+      "exit_code": 0,
+      "duration_seconds": 1.589,
+      "stdout": "{\"status\": \"passed\", \"account_isolation_repeats\": 3, \"actual_http_accounts\": 2, \"atomic_save_rollback\": true, \"idempotent_stream\": true}\n",
+      "stderr": ""
+    },
+    {
+      "module": "scripts.verify_assistant_network",
+      "exit_code": 0,
+      "duration_seconds": 0.503,
+      "stdout": "{\"status\": \"passed\", \"unsafe_url_checks\": 24, \"redirect_checks\": 3, \"mixed_dns_rejected\": true, \"address_pin_verified\": true, \"mode\": \"deterministic_transport\", \"external_fetches\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "module": "scripts.contract_check",
+      "exit_code": 0,
+      "duration_seconds": 1.064,
+      "stdout": "契约门禁通过：declared=71 allowlisted=20 unmodeled=0\n",
+      "stderr": ""
+    },
+    {
+      "module": "scripts.verify_m2",
+      "exit_code": 0,
+      "duration_seconds": 2.318,
+      "stdout": "M2 本地关键词扩展、前 5 条证据、模型回答引用、分析、分类复核和账户隔离检查均已通过\n",
+      "stderr": ""
+    },
+    {
+      "module": "scripts.verify_conversations",
+      "exit_code": 0,
+      "duration_seconds": 1.813,
+      "stdout": "知识库持久化对话、引用、历史记录限制、失败轮次回滚、重命名、删除、校验和账户隔离检查均已通过\n",
+      "stderr": ""
+    },
+    {
+      "module": "scripts.verify_assistant_tracing",
+      "exit_code": 0,
+      "duration_seconds": 1.509,
+      "stdout": "assistant trace verification passed\n",
+      "stderr": "assistant trace start failed: RuntimeError\n"
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+[
+  {
+    "scenario": "跨块内部ID",
+    "rep": 1,
+    "chunks": [
+      "内部ID:11111111-1111-4111",
+      "-8111-000000000001"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "内部ID:11111111-1111-4111"
+      },
+      {
+        "type": "delta",
+        "text": "-8111-000000000001"
+      }
+    ],
+    "final": {
+      "answer": "内部ID:11111111-1111-4111-8111-000000000001",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": true,
+    "internal_uuid_in_final": true,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "引用最终出口过滤",
+    "rep": 1,
+    "chunks": [
+      "预算3200元",
+      "[S999]"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算3200元"
+      },
+      {
+        "type": "delta",
+        "text": "[S999]"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": true,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "正常流式对照",
+    "rep": 1,
+    "chunks": [
+      "预算",
+      "3200元"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算"
+      },
+      {
+        "type": "delta",
+        "text": "3200元"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "跨块内部ID",
+    "rep": 2,
+    "chunks": [
+      "内部ID:11111111-1111-4111",
+      "-8111-000000000001"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "内部ID:11111111-1111-4111"
+      },
+      {
+        "type": "delta",
+        "text": "-8111-000000000001"
+      }
+    ],
+    "final": {
+      "answer": "内部ID:11111111-1111-4111-8111-000000000001",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": true,
+    "internal_uuid_in_final": true,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "引用最终出口过滤",
+    "rep": 2,
+    "chunks": [
+      "预算3200元",
+      "[S999]"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算3200元"
+      },
+      {
+        "type": "delta",
+        "text": "[S999]"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": true,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "正常流式对照",
+    "rep": 2,
+    "chunks": [
+      "预算",
+      "3200元"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算"
+      },
+      {
+        "type": "delta",
+        "text": "3200元"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "跨块内部ID",
+    "rep": 3,
+    "chunks": [
+      "内部ID:11111111-1111-4111",
+      "-8111-000000000001"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "内部ID:11111111-1111-4111"
+      },
+      {
+        "type": "delta",
+        "text": "-8111-000000000001"
+      }
+    ],
+    "final": {
+      "answer": "内部ID:11111111-1111-4111-8111-000000000001",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": true,
+    "internal_uuid_in_final": true,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "引用最终出口过滤",
+    "rep": 3,
+    "chunks": [
+      "预算3200元",
+      "[S999]"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算3200元"
+      },
+      {
+        "type": "delta",
+        "text": "[S999]"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": true,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  },
+  {
+    "scenario": "正常流式对照",
+    "rep": 3,
+    "chunks": [
+      "预算",
+      "3200元"
+    ],
+    "stream_events": [
+      {
+        "type": "delta",
+        "text": "预算"
+      },
+      {
+        "type": "delta",
+        "text": "3200元"
+      }
+    ],
+    "final": {
+      "answer": "预算3200元",
+      "citations": [],
+      "semantic_status": "not_requested",
+      "answer_source": "model_knowledge"
+    },
+    "internal_uuid_in_stream": false,
+    "internal_uuid_in_final": false,
+    "marker_in_stream": false,
+    "marker_in_final": false,
+    "limitation": "替身Agent控制分块；原始流式封装未修改。不是模型自发攻击成功或真实浏览器事件。"
+  }
+]

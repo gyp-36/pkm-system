@@ -1,0 +1,1481 @@
+[
+  {
+    "id": "CONTRACT_TOP_search_hits",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_full",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_related_image_context",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_citations",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_title_candidates",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_title_candidates_candidates",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_ok",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_error",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_created",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_updated",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_duplicate",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_UNKNOWN",
+    "rep": 1,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "未登记信封拒绝",
+    "observed": {
+      "unknown_kind_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_0",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_1",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_2",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_3",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_4",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_5",
+    "rep": 1,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_0",
+    "rep": 1,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_1",
+    "rep": 1,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_2",
+    "rep": 1,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_3",
+    "rep": 1,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_0",
+    "rep": 1,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_1",
+    "rep": 1,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 1
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_2",
+    "rep": 1,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_3",
+    "rep": 1,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_UNIQUE_RANGE",
+    "rep": 1,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "唯一局部替换保留范围外所有资料",
+    "observed": {
+      "correct_patch": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_AMBIGUOUS_RANGE",
+    "rep": 1,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "多处匹配不能选择任意一处",
+    "observed": {
+      "patch": null
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "OUTPUT_ID_full",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_upper",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix8",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix12",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_suffix12",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_compact",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_CONTROL_METADATA",
+    "rep": 1,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "明确内部控制元数据不能原样输出",
+    "observed": {
+      "control_metadata_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize；不证明工具白名单会将这些元数据提供给模型。"
+  },
+  {
+    "id": "OUTPUT_LEGAL_DATA",
+    "rep": 1,
+    "boundary": "合法资料保持",
+    "mode": "deterministic_finalizer_only",
+    "expected": "普通技术标识与版本不被破坏",
+    "observed": {
+      "preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "HISTORY_CONTROL_REENTRY",
+    "rep": 1,
+    "boundary": "历史边界",
+    "mode": "deterministic_history_projection",
+    "expected": "旧助手内部标识不再进入模型历史",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "模拟旧消息对象调用实际历史投影；真实HTTP旧消息返回另测。"
+  },
+  {
+    "id": "CONTRACT_TOP_search_hits",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_full",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_related_image_context",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_citations",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_title_candidates",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_title_candidates_candidates",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_ok",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_error",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_created",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_updated",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_duplicate",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_UNKNOWN",
+    "rep": 2,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "未登记信封拒绝",
+    "observed": {
+      "unknown_kind_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_0",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_1",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_2",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_3",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_4",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_5",
+    "rep": 2,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_0",
+    "rep": 2,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_1",
+    "rep": 2,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_2",
+    "rep": 2,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_3",
+    "rep": 2,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_0",
+    "rep": 2,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_1",
+    "rep": 2,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 1
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_2",
+    "rep": 2,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_3",
+    "rep": 2,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_UNIQUE_RANGE",
+    "rep": 2,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "唯一局部替换保留范围外所有资料",
+    "observed": {
+      "correct_patch": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_AMBIGUOUS_RANGE",
+    "rep": 2,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "多处匹配不能选择任意一处",
+    "observed": {
+      "patch": null
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "OUTPUT_ID_full",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_upper",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix8",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix12",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_suffix12",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_compact",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_CONTROL_METADATA",
+    "rep": 2,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "明确内部控制元数据不能原样输出",
+    "observed": {
+      "control_metadata_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize；不证明工具白名单会将这些元数据提供给模型。"
+  },
+  {
+    "id": "OUTPUT_LEGAL_DATA",
+    "rep": 2,
+    "boundary": "合法资料保持",
+    "mode": "deterministic_finalizer_only",
+    "expected": "普通技术标识与版本不被破坏",
+    "observed": {
+      "preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "HISTORY_CONTROL_REENTRY",
+    "rep": 2,
+    "boundary": "历史边界",
+    "mode": "deterministic_history_projection",
+    "expected": "旧助手内部标识不再进入模型历史",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "模拟旧消息对象调用实际历史投影；真实HTTP旧消息返回另测。"
+  },
+  {
+    "id": "CONTRACT_TOP_search_hits",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_full",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_related_image_context",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_note_full_citations",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_title_candidates",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_NESTED_title_candidates_candidates",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "嵌套未登记字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_ok",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_external_link_error",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_created",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_updated",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_TOP_note_duplicate",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "任意未登记顶层字段均拒绝",
+    "observed": {
+      "unexpected_field_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "CONTRACT_UNKNOWN",
+    "rep": 3,
+    "boundary": "模型数据契约",
+    "mode": "deterministic_contract",
+    "expected": "未登记信封拒绝",
+    "observed": {
+      "unknown_kind_rejected": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_0",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_1",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_2",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_3",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_4",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_BODY_5",
+    "rep": 3,
+    "boundary": "资料不增加权限",
+    "mode": "deterministic_policy",
+    "expected": "正文指令不改变当前一篇创建范围，正文保持",
+    "observed": {
+      "action": "create",
+      "count": 1,
+      "fields": [
+        "title",
+        "body_md"
+      ],
+      "body_preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_0",
+    "rep": 3,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_1",
+    "rep": 3,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_2",
+    "rep": 3,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "AUTH_NO_DIRECT_3",
+    "rep": 3,
+    "boundary": "当轮授权",
+    "mode": "deterministic_policy",
+    "expected": "资料、假设、草稿和撤销不授予写入",
+    "observed": {
+      "action": "none"
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_0",
+    "rep": 3,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_1",
+    "rep": 3,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 1
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_2",
+    "rep": 3,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "URL_AUTH_3",
+    "rep": 3,
+    "boundary": "网络权限",
+    "mode": "deterministic_policy",
+    "expected": "当前请求控制联网目的地，资料及无指代历史不扩权",
+    "observed": {
+      "allowed_count": 0
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_UNIQUE_RANGE",
+    "rep": 3,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "唯一局部替换保留范围外所有资料",
+    "observed": {
+      "correct_patch": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "EDIT_AMBIGUOUS_RANGE",
+    "rep": 3,
+    "boundary": "修改范围",
+    "mode": "deterministic_patch",
+    "expected": "多处匹配不能选择任意一处",
+    "observed": {
+      "patch": null
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "OUTPUT_ID_full",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_upper",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": false
+    },
+    "status": "通过",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix8",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_prefix12",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_suffix12",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_ID_compact",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "登记的内部身份变形不进入自然语言正文",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize，不代表完整模型调用链产生该回答；来源隔离和语义核验另测。"
+  },
+  {
+    "id": "OUTPUT_CONTROL_METADATA",
+    "rep": 3,
+    "boundary": "回答出口",
+    "mode": "deterministic_finalizer_only",
+    "expected": "明确内部控制元数据不能原样输出",
+    "observed": {
+      "control_metadata_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "只测试finalize；不证明工具白名单会将这些元数据提供给模型。"
+  },
+  {
+    "id": "OUTPUT_LEGAL_DATA",
+    "rep": 3,
+    "boundary": "合法资料保持",
+    "mode": "deterministic_finalizer_only",
+    "expected": "普通技术标识与版本不被破坏",
+    "observed": {
+      "preserved": true
+    },
+    "status": "通过",
+    "limitation": ""
+  },
+  {
+    "id": "HISTORY_CONTROL_REENTRY",
+    "rep": 3,
+    "boundary": "历史边界",
+    "mode": "deterministic_history_projection",
+    "expected": "旧助手内部标识不再进入模型历史",
+    "observed": {
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "模拟旧消息对象调用实际历史投影；真实HTTP旧消息返回另测。"
+  },
+  {
+    "id": "HTTP_LEGACY_OUTPUT",
+    "rep": 1,
+    "boundary": "历史呈现",
+    "mode": "real_tcp_synthetic_db",
+    "expected": "历史助手内部控制标识在读取接口不再暴露",
+    "observed": {
+      "http_status": 200,
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "专用账号合成旧消息；只验证读取接口，未调用模型。"
+  },
+  {
+    "id": "HTTP_LEGACY_OUTPUT",
+    "rep": 2,
+    "boundary": "历史呈现",
+    "mode": "real_tcp_synthetic_db",
+    "expected": "历史助手内部控制标识在读取接口不再暴露",
+    "observed": {
+      "http_status": 200,
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "专用账号合成旧消息；只验证读取接口，未调用模型。"
+  },
+  {
+    "id": "HTTP_LEGACY_OUTPUT",
+    "rep": 3,
+    "boundary": "历史呈现",
+    "mode": "real_tcp_synthetic_db",
+    "expected": "历史助手内部控制标识在读取接口不再暴露",
+    "observed": {
+      "http_status": 200,
+      "internal_identity_retained": true
+    },
+    "status": "发现问题",
+    "limitation": "专用账号合成旧消息；只验证读取接口，未调用模型。"
+  }
+]

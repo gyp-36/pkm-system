@@ -1,0 +1,8 @@
+{
+  "mode": "deterministic_current_policy_before_fix",
+  "question": "新建一篇笔记，标题《测试》，正文是“普通资料”。取消保存。",
+  "observed_action": "create",
+  "expected_action": "none",
+  "original_db_effects": 0,
+  "source_sha256": "03792aece68d9b307949ba3ac07889972526fd4ac2d0dc6f3d423b99f701d34e"
+}

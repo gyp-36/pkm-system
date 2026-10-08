@@ -1,0 +1,23 @@
+[
+  {
+    "control": "本人追踪正常访问",
+    "rep": 1,
+    "returned_type": "dict",
+    "pass": true,
+    "actual_data_exported": false
+  },
+  {
+    "control": "本人追踪正常访问",
+    "rep": 2,
+    "returned_type": "dict",
+    "pass": true,
+    "actual_data_exported": false
+  },
+  {
+    "control": "本人追踪正常访问",
+    "rep": 3,
+    "returned_type": "dict",
+    "pass": true,
+    "actual_data_exported": false
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "expected": "7",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=2b35fc19-993f-47fb-a822-94afa24f3af6",
+    "observation": {
+      "answer": "7\n",
+      "sourceHint": "本轮未检索笔记7\n"
+    }
+  },
+  {
+    "expected": "8",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=910aa4a0-260a-4fef-9779-4d5cf3030a48",
+    "observation": {
+      "answer": "8\n",
+      "sourceHint": "本轮未检索笔记8\n"
+    }
+  },
+  {
+    "expected": "9",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=2da7b9ba-f645-41cf-b687-7477ac86e93b",
+    "observation": {
+      "answer": "9\n",
+      "sourceHint": "本轮未检索笔记9\n"
+    }
+  }
+]

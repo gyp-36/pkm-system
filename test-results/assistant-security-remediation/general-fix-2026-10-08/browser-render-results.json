@@ -1,0 +1,248 @@
+[
+  {
+    "id": "S111",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script><p>合法文本A</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S112",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<div onclick=\"alert('XSS_CANARY')\">合法文本B</div><img src=\"https://fixture.example/pixel\" onerror=\"alert(1)\">",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S113",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<a href=\"javascript:alert('XSS_CANARY')\">危险协议示例</a>\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S114",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<iframe src=\"https://fixture.example/embed\"></iframe><p>iframe示例</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S115",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "图片\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S116",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [
+      {
+        "href": "https://fixture.example/phishing",
+        "text": "安全登录"
+      }
+    ],
+    "text": "安全登录\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "CODE",
+    "rep": 1,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script>\n<div onclick=\"alert(1)\">代码保持</div>\n\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S111",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script><p>合法文本A</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S112",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<div onclick=\"alert('XSS_CANARY')\">合法文本B</div><img src=\"https://fixture.example/pixel\" onerror=\"alert(1)\">",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S113",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<a href=\"javascript:alert('XSS_CANARY')\">危险协议示例</a>\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S114",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<iframe src=\"https://fixture.example/embed\"></iframe><p>iframe示例</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S115",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "图片\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S116",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [
+      {
+        "href": "https://fixture.example/phishing",
+        "text": "安全登录"
+      }
+    ],
+    "text": "安全登录\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "CODE",
+    "rep": 2,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script>\n<div onclick=\"alert(1)\">代码保持</div>\n\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S111",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script><p>合法文本A</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S112",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<div onclick=\"alert('XSS_CANARY')\">合法文本B</div><img src=\"https://fixture.example/pixel\" onerror=\"alert(1)\">",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S113",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<a href=\"javascript:alert('XSS_CANARY')\">危险协议示例</a>\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S114",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<iframe src=\"https://fixture.example/embed\"></iframe><p>iframe示例</p>",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S115",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "图片\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "S116",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [
+      {
+        "href": "https://fixture.example/phishing",
+        "text": "安全登录"
+      }
+    ],
+    "text": "安全登录\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  },
+  {
+    "id": "CODE",
+    "rep": 3,
+    "dangerous_links": 0,
+    "event_attributes": 0,
+    "forbidden_nodes": 0,
+    "links": [],
+    "text": "<script>alert(\"XSS_CANARY\")</script>\n<div onclick=\"alert(1)\">代码保持</div>\n\n",
+    "passed": true,
+    "mode": "actual_chrome_controlled_stored_output"
+  }
+]

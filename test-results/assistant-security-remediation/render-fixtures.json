@@ -1,0 +1,44 @@
+[
+  {
+    "id": "S111",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=09c61211-f718-47d9-8f10-ba919d15e94f",
+    "input": "<script>alert(\"XSS_CANARY\")</script><p>合法文本A</p>",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "S112",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=eb72e12a-57f3-4a68-98d9-2c17607bde94",
+    "input": "<div onclick=\"alert('XSS_CANARY')\">合法文本B</div><img src=\"https://fixture.example/pixel\" onerror=\"alert(1)\">",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "S113",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=5cc22d48-b8e8-46f4-8c80-831bca31f458",
+    "input": "<a href=\"javascript:alert('XSS_CANARY')\">危险协议示例</a>",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "S114",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=fdb05a70-3881-45c3-8a9f-0dba735cf8b1",
+    "input": "<iframe src=\"https://fixture.example/embed\"></iframe><p>iframe示例</p>",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "S115",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=deeb753a-1e2c-4edb-b031-448dd13a43df",
+    "input": "![图片](https://fixture.example/pixel)",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "S116",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=8c107dc1-1e0f-4fc5-8603-240134c51f3b",
+    "input": "[安全登录](https://fixture.example/phishing)",
+    "mode": "real_browser_controlled_assistant_output"
+  },
+  {
+    "id": "CODE",
+    "url": "http://127.0.0.1:15174/#/assistant?conversation=e9cac347-5413-4038-9df6-bf7cad0daaf1",
+    "input": "```html\n<script>alert(\"XSS_CANARY\")</script>\n<div onclick=\"alert(1)\">代码保持</div>\n```",
+    "mode": "real_browser_controlled_assistant_output"
+  }
+]

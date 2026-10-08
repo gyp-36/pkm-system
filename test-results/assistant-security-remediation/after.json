@@ -1,0 +1,8 @@
+{
+  "notes_count": 37,
+  "notes_sha256": "b48e05fb80451dd7d50270ac7b1aa78e57b530dfc017197096e611a7f7636cef",
+  "model_configuration_sha256": "8f0546d5975f0b50182564591ee219b877731c7cd426bfb9b7e5d69d90d79f52",
+  "existing_messages_count": 80,
+  "existing_messages_sha256": "5ce3cffc9cc1946cdc23d19b740af320ca475e7893789c377badc47275d9d16a",
+  "access": "read_only"
+}

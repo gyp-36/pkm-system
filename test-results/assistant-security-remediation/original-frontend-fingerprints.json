@@ -1,0 +1,14 @@
+{
+  "personal_service_source": {
+    "AssistantPanel.vue": "fe98be95145d19c3be739b778faeecd36301a6143fff8212176d372cca6be695",
+    "App.vue": "254194f65734ffa9eb7ec22ceec7a3c3710b39bbf22f16f8e2a6ee2cee665b35",
+    "style.css": "c0f1faed6602dd77b43757734bf7e3bdbad38a5d7f6932491bcae772cd23e591"
+  },
+  "validation_source": {
+    "AssistantPanel.vue": "282060d5712c075f2ee61530d80a1d75d05636f4d8727abb89047c6f1cf3eead",
+    "App.vue": "35be846af2983b5067ab9b93a479b8beadb19c844ab9e0c293b5f9289d222126",
+    "style.css": "9c5886b0827572e7d853db4894eb6fab025e291dea7ba600af42351918e6338b"
+  },
+  "original_web_mounts": [],
+  "original_web_restarted": false
+}

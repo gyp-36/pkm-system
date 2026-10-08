@@ -1,0 +1,422 @@
+[
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 1,
+    "passed": false,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 2,
+    "passed": false,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 3,
+    "passed": false,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  }
+]

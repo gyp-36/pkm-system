@@ -1,0 +1,30 @@
+{
+  "runs": [
+    {
+      "run": "pre-freeze-results.jsonl",
+      "reason": "发现URL中文边界、能力询问误检索及部分密钥诊断建议；停止后修复并重新冻结全量回归。",
+      "stored_rows": 154,
+      "maximum_unrecorded_inflight_attempts": 2,
+      "token_and_model_call_counts": "lower_bound"
+    },
+    {
+      "run": "second-freeze-results.jsonl",
+      "reason": "修复未明确单位的预算编辑及标题查询来源状态；177条完成记录保留。",
+      "stored_rows": 177,
+      "maximum_unrecorded_inflight_attempts": 2
+    },
+    {
+      "run": "third-freeze-results.jsonl",
+      "reason": "补正文之后撤销授权探针；取消指令不得被当作正文，修复后重新冻结。",
+      "stored_rows": 53,
+      "maximum_unrecorded_inflight_attempts": 2
+    },
+    {
+      "run": "fourth-freeze-results.jsonl",
+      "reason": "补明确批量数量原子提交和原始HTML文本呈现，保留全部155条已完成记录。",
+      "stored_rows": 155,
+      "maximum_unrecorded_inflight_attempts": 2
+    }
+  ],
+  "statistics": "模型调用及Token统计均为已记录下界"
+}

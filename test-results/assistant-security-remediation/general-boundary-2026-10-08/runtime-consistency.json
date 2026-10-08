@@ -1,0 +1,21 @@
+{
+  "checked_files": 106,
+  "running_source_mismatches": [],
+  "frontend_assets_sha256": {
+    "dist/chunk-preview.html": "44932de9d15538d1daf2fcd7bfd388092cea484ac2584e0adbf4259a7174331a",
+    "dist/index.html": "e85bdd626821711a14716f65c0a59928736ab53d9e727a1c5537eef00e5c496c",
+    "dist/file-icons/file_type_word.svg": "f720754d0946877157f8391da30f4d23b4e5332f1c96c737995b7c3e391afe73",
+    "dist/file-icons/file_type_markdown.svg": "fa10b34b3c72cc10ac1c6f7013c366e76b310fa3efab1635b1e382bc6d6f9530",
+    "dist/file-icons/file_type_image.svg": "5c893f16ace217a90a646fe8c590a9331e3a165e492ef1a7e14ce701eb9a9b59",
+    "dist/file-icons/LICENSE": "c0878418702a1c58790ffbe6b0a4663e62dfd76b693face439a516c80b7514e8",
+    "dist/file-icons/file_type_pdf.svg": "f323533915b2665da2e3413ad53ff30e058dd3d8bbe2ebe6d6a6d8d2db91f86c",
+    "dist/file-icons/file_type_excel.svg": "da165705f28f83920031af3ecf17d6e97fa498c09045bbb7543ffbe3aee2e6c0",
+    "dist/assets/index-BY6U_tv5.js": "ccf3d975e440581b8c5b45fbd0d5f6c1088ac9f54274e0b02d2b6b4c8e5f96a1",
+    "dist/assets/login-still-life-CP5mUUmv.jpg": "dbeeaab734c18fea3cb0be6c95762657851004704784de4c6647ec63fe114519",
+    "dist/assets/index-BZjcstcU.css": "7e1d8a09e50cc57bab62ec387a11a1bb9fc8b1712bf716894feaa8c48015999a",
+    "dist/assets/workbench-autumn-CHEW87l5.jpg": "a2a73824316a61a00273db5d77cb47154865e360b40f127b5c627952a6baff50"
+  },
+  "browser_observed_js": "/assets/index-BY6U_tv5.js",
+  "browser_observed_css": "/assets/index-BZjcstcU.css",
+  "personal_service_restarted_by_test": false
+}

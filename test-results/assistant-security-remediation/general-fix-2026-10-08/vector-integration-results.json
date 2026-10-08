@@ -1,0 +1,68 @@
+{
+  "mode": "real_cached_embedding_real_postgres_synthetic_accounts",
+  "model": "qwen3-embedding:0.6b",
+  "dimensions": 1024,
+  "existing_model_cache_no_download": true,
+  "configured_endpoint": "http://ollama:11434",
+  "configured_personal_endpoint_repaired": true,
+  "synthetic_notes_indexed": 2,
+  "chunks": 4,
+  "checks": [
+    {
+      "repeat": 1,
+      "actor": "A",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    },
+    {
+      "repeat": 1,
+      "actor": "B",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    },
+    {
+      "repeat": 2,
+      "actor": "A",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    },
+    {
+      "repeat": 2,
+      "actor": "B",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    },
+    {
+      "repeat": 3,
+      "actor": "A",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    },
+    {
+      "repeat": 3,
+      "actor": "B",
+      "vector_only": true,
+      "semantic_available": true,
+      "own_recalled": true,
+      "foreign_recalled": false,
+      "hits": 1
+    }
+  ],
+  "passed": true,
+  "duration_seconds": 8.014
+}

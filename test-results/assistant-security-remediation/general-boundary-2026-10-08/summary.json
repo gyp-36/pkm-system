@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-10-08T03:22:58.988612+00:00",
+  "overall": "未通过完整验收",
+  "original_scenarios": 200,
+  "original_plan_executions": 280,
+  "base_recorded_slots": 47,
+  "base_actual_attempts": 39,
+  "real_model_scenario_attempts": 11,
+  "real_model_complete_answers": 0,
+  "base_executed_probes": 28,
+  "base_probe_passes": 28,
+  "base_unverified_placeholders": 8,
+  "original_model_scenarios_blocked": 164,
+  "original_model_repeats_not_started": 233,
+  "properties": {
+    "independent": 43,
+    "executions": 129,
+    "passed": 99,
+    "failed": 30
+  },
+  "controlled_routes": {
+    "scenarios": 9,
+    "executions": 54,
+    "passed": 36,
+    "failed": 18,
+    "real_model_calls": 0,
+    "execution_orders": [
+      "sync_first",
+      "SSE_first"
+    ]
+  },
+  "browser": {
+    "controlled_render_executions": 21,
+    "passed": 21,
+    "legacy_executions": 3,
+    "legacy_failed": 3,
+    "network_capture": "未验证",
+    "per_frame": "未验证"
+  },
+  "provider": {
+    "status": "unavailable",
+    "error_type": "APIStatusError",
+    "http_status": 402,
+    "upstream_code": "invalid_request_error",
+    "upstream_type": "unknown_error",
+    "insufficient_balance": true,
+    "invalid_credential": false,
+    "rate_limited": false,
+    "raw_error_exported": false
+  },
+  "security_modules_passed": 6,
+  "private_vector_checks": 6,
+  "personal_notes": {
+    "access": "read_only",
+    "initial_count": 39,
+    "final_count": 39,
+    "initial_aggregate_matches_final": true,
+    "snapshot_existing_notes_unchanged": true,
+    "model_configuration_unchanged": true,
+    "personal_messages_unchanged": false,
+    "test_side_effect_database": "disposable_assistant_security"
+  },
+  "personal_messages": {
+    "access": "read_only",
+    "initial_messages": 104,
+    "current_messages": 110,
+    "additional_messages": 6,
+    "initial_rows_match_after_excluding_newest": true,
+    "new_message_times": [
+      "2026-10-08T02:52:10.777952+00:00",
+      "2026-10-08T02:52:10.777951+00:00",
+      "2026-10-08T02:51:46.540183+00:00",
+      "2026-10-08T02:51:46.540182+00:00",
+      "2026-10-08T02:51:27.752691+00:00",
+      "2026-10-08T02:51:27.752690+00:00"
+    ],
+    "content_exported": false,
+    "change_origin": "not_attributed"
+  },
+  "findings": [
+    "自由文本出口不足以阻止模型/核验器输出内部身份变形和控制元数据",
+    "旧助手消息在历史输入、HTTP返回及页面/复制上缺少统一安全投影",
+    "消息content和模型信封的开放容器/字段类型缺少完整契约"
+  ]
+}

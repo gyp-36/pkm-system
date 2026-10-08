@@ -1,12 +1,26 @@
 """持久对话响应契约。"""
 
 from app.contracts.base import ContractModel
+from app.contracts.assistant import AnswerOut
+
+
+class UserContentOut(ContractModel):
+    text: str
+
+
+class LegacySearchItemOut(ContractModel):
+    title: str
+    snippet: str
+
+
+class LegacySearchContentOut(ContractModel):
+    items: list[LegacySearchItemOut]
 
 
 class MessageOut(ContractModel):
     id: str
     role: str
-    content: dict
+    content: UserContentOut | AnswerOut | LegacySearchContentOut
     created_at: str
 
 

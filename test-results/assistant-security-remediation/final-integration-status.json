@@ -1,0 +1,15 @@
+[
+  {
+    "script": "http_validation.py",
+    "exit_code": 0
+  },
+  {
+    "script": "history_validation.py",
+    "exit_code": 0
+  },
+  {
+    "script": "commit_stream_validation.py",
+    "exit_code": 1,
+    "failure_type": "integration_script_failure"
+  }
+]

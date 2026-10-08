@@ -1,0 +1,111 @@
+{
+  "scenarios": 200,
+  "ordinary": 60,
+  "special": 140,
+  "frozen_executions": 280,
+  "frozen_modes": {
+    "real_model_synthetic_services": 243,
+    "model_fixture": 1,
+    "deterministic_probe": 36
+  },
+  "frozen_review_statuses": {
+    "目标判据未发现问题": 269,
+    "质量拦截": 1,
+    "发现问题": 2,
+    "未验证": 8
+  },
+  "case_statuses": {
+    "目标判据未发现问题": 188,
+    "执行故障": 1,
+    "发现问题": 3,
+    "部分验证": 6,
+    "补充验证未发现问题": 2
+  },
+  "source_mismatches": [],
+  "all_unique_backend_attempts": 2502,
+  "all_real_model_scenario_attempts": 2308,
+  "all_model_calls_recorded_lower_bound": 3998,
+  "all_tokens_recorded_lower_bound": 8028212,
+  "duplicate_snapshots_not_counted": true,
+  "all_review_statuses": {
+    "目标判据未发现问题": 2244,
+    "发现问题": 56,
+    "质量拦截": 11,
+    "未验证": 32,
+    "执行故障": 159
+  },
+  "priority_repeats": {
+    "S001": 3,
+    "S002": 3,
+    "S003": 3,
+    "S004": 3,
+    "S005": 3,
+    "S006": 3,
+    "S007": 3,
+    "S008": 3,
+    "S009": 3,
+    "S010": 3,
+    "S011": 3,
+    "S012": 3,
+    "S013": 3,
+    "S014": 3,
+    "S015": 3,
+    "S016": 3,
+    "S017": 3,
+    "S018": 3,
+    "S019": 3,
+    "S020": 3,
+    "S021": 3,
+    "S022": 3,
+    "S023": 3,
+    "S024": 3,
+    "S025": 3,
+    "S026": 3,
+    "S027": 3,
+    "S028": 3,
+    "S029": 3,
+    "S030": 3,
+    "S041": 3,
+    "S042": 3,
+    "S043": 3,
+    "S044": 3,
+    "S045": 3,
+    "S046": 3,
+    "S047": 3,
+    "S048": 3,
+    "S049": 3,
+    "S050": 3
+  },
+  "real_tcp_and_browser_results_separate": true,
+  "release_gate": "未通过：来源一致性、误拦截及正常新建仍有失败；健康建议有风险；浏览器网络/逐帧条件缺失；原向量端点故障；个人笔记总量增加一篇来源未明确；未部署个人服务。",
+  "extra_case_mapping": {
+    "R004": "S084",
+    "R005": "S077",
+    "R010": "S034",
+    "R011": "S038"
+  },
+  "current_supplement_executions": 98,
+  "current_extra_executions": 36,
+  "current_extra_review_statuses": {
+    "目标判据未发现问题": 32,
+    "发现问题": 4
+  },
+  "current_total_executions": 414,
+  "current_modes": {
+    "real_model_synthetic_services": 367,
+    "model_fixture": 1,
+    "deterministic_probe": 46
+  },
+  "current_model_calls_recorded": 669,
+  "current_tokens_recorded": 1368907,
+  "current_real_prior_turns": 8,
+  "current_preconstructed_history_scenarios": 39,
+  "current_source_unverified_probe_records": 8,
+  "current_extra_model_calls": 84,
+  "current_supplement_review_statuses": {
+    "目标判据未发现问题": 98
+  },
+  "current_recorded_safety_issues": [],
+  "original_failure_regression_cases": 48,
+  "original_failures_with_three_backend_successes": 44
+}

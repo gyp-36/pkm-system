@@ -1,0 +1,246 @@
+{
+  "summary": {
+    "exact": {
+      "questions": 5,
+      "keyword": 5,
+      "hybrid": 5,
+      "empty_hybrid": 0
+    },
+    "paraphrase": {
+      "questions": 5,
+      "keyword": 0,
+      "hybrid": 5,
+      "empty_hybrid": 0
+    },
+    "cross": {
+      "questions": 5,
+      "keyword": 0,
+      "hybrid": 5,
+      "empty_hybrid": 0
+    },
+    "no_answer": {
+      "questions": 5,
+      "keyword": 5,
+      "hybrid": 5,
+      "empty_hybrid": 5
+    }
+  },
+  "bad_offsets": [],
+  "questions": [
+    {
+      "group": "exact",
+      "q": "番茄钟",
+      "targets": [
+        "focus"
+      ],
+      "keyword": true,
+      "keyword_count": 1,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "exact",
+      "q": "一周安排复习",
+      "targets": [
+        "review"
+      ],
+      "keyword": true,
+      "keyword_count": 1,
+      "hybrid": true,
+      "hybrid_count": 3
+    },
+    {
+      "group": "exact",
+      "q": "慢跑三公里",
+      "targets": [
+        "running"
+      ],
+      "keyword": true,
+      "keyword_count": 1,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "exact",
+      "q": "摘要、图表",
+      "targets": [
+        "reading"
+      ],
+      "keyword": true,
+      "keyword_count": 1,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "exact",
+      "q": "离线硬盘",
+      "targets": [
+        "backup"
+      ],
+      "keyword": true,
+      "keyword_count": 1,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "paraphrase",
+      "q": "怎样安排工作与短暂放松",
+      "targets": [
+        "focus"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "paraphrase",
+      "q": "如何避免学完很快忘记",
+      "targets": [
+        "review"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "paraphrase",
+      "q": "怎样减少睡前电子屏幕影响",
+      "targets": [
+        "sleep"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "paraphrase",
+      "q": "跑步结束后做什么",
+      "targets": [
+        "running"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "paraphrase",
+      "q": "备份数据库应该怎么做",
+      "targets": [
+        "backup"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 1
+    },
+    {
+      "group": "cross",
+      "q": "学习时怎样保持专注并定期复习",
+      "targets": [
+        "focus",
+        "review"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 2
+    },
+    {
+      "group": "cross",
+      "q": "如何改善睡眠并安排跑步",
+      "targets": [
+        "sleep",
+        "running"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 2
+    },
+    {
+      "group": "cross",
+      "q": "阅读论文和备份项目分别有什么步骤",
+      "targets": [
+        "reading",
+        "backup"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 2
+    },
+    {
+      "group": "cross",
+      "q": "旅行时需要准备物品和饮水习惯",
+      "targets": [
+        "travel",
+        "food"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 2
+    },
+    {
+      "group": "cross",
+      "q": "怎样安排学习专注和健康午餐",
+      "targets": [
+        "focus",
+        "food"
+      ],
+      "keyword": false,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 2
+    },
+    {
+      "group": "no_answer",
+      "q": "火星车今天在哪里",
+      "targets": [],
+      "keyword": true,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 0
+    },
+    {
+      "group": "no_answer",
+      "q": "量子计算机的价格是多少",
+      "targets": [],
+      "keyword": true,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 0
+    },
+    {
+      "group": "no_answer",
+      "q": "伦敦明天天气如何",
+      "targets": [],
+      "keyword": true,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 0
+    },
+    {
+      "group": "no_answer",
+      "q": "股票收盘行情是多少",
+      "targets": [],
+      "keyword": true,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 0
+    },
+    {
+      "group": "no_answer",
+      "q": "猫什么时候接种疫苗",
+      "targets": [],
+      "keyword": true,
+      "keyword_count": 0,
+      "hybrid": true,
+      "hybrid_count": 0
+    }
+  ]
+}

@@ -1,0 +1,482 @@
+[
+  {
+    "id": "O08",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O21",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O26",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O28",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O30",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O33",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O41",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O45",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O54",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "O58",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S005",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S014",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S020",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S021",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S025",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S026",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S027",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S028",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S029",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S031",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S033",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S034",
+    "original_status": "发现问题",
+    "current_executions": 6,
+    "current_successes": 6,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S035",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S038",
+    "original_status": "发现问题",
+    "current_executions": 6,
+    "current_successes": 6,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S042",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S045",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S046",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S054",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S055",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S058",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S060",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S064",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "http-results.json：追踪详情、按消息查询、列表均按账号隔离。",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S072",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S076",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S077",
+    "original_status": "发现问题",
+    "current_executions": 6,
+    "current_successes": 3,
+    "current_problems": 3,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S083",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S084",
+    "original_status": "发现问题",
+    "current_executions": 6,
+    "current_successes": 5,
+    "current_problems": 1,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S085",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S098",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S104",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S105",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S109",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S110",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S111",
+    "original_status": "发现问题（质量/部分验证）",
+    "current_executions": 1,
+    "current_successes": 0,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "browser-render-results.json：真实Chrome移除script节点；网络捕获未取得。",
+    "page_conditions_remain_unverified": true
+  },
+  {
+    "id": "S117",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S118",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S119",
+    "original_status": "发现问题（页面）",
+    "current_executions": 1,
+    "current_successes": 0,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "ui-source-results.json、ui-persisted-results.json：三次真实页面来源提示与落库一致。",
+    "page_conditions_remain_unverified": false
+  },
+  {
+    "id": "S123",
+    "original_status": "发现问题",
+    "current_executions": 3,
+    "current_successes": 3,
+    "current_problems": 0,
+    "current_faults": 0,
+    "supplemental_evidence": "",
+    "page_conditions_remain_unverified": false
+  }
+]

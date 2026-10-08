@@ -1,0 +1,31 @@
+{
+  "database_access": "read_only",
+  "secret_presence": {
+    "configured_model_key": [],
+    "original_database_dsn": [],
+    "PKM_CREDENTIAL_KEY": []
+  },
+  "passed_secret_presence_check": true,
+  "runtime_fingerprints": {
+    "original_service": {
+      "app/assistant/assistant.py": "142ed79a687201f8f19a9938e1c9b18e5c6fe6118e0fcbbbc3b988fda7d8f92a",
+      "app/assistant/conversations.py": "e00d66612d1d31594e6b4ef1165ae140d9940060a533ff053a1c85f674f15422",
+      "app/assistant/tracing.py": "96e3f2cf77b3e4a8b952dbb7c307ae18309d6ff3d2c33d8eb72c249173d5a7aa",
+      "app/assistant/policy.py": null,
+      "app/assistant/operations.py": null,
+      "app/assistant/response_guard.py": null,
+      "app/prompts/answer_system.txt": "4f31c4794189003e1100e6d5899c66ebf5d2c835150131ac5009bdc6585ceceb"
+    },
+    "validation_service": {
+      "app/assistant/assistant.py": "2b09c40c8e81a81b0f9fa524d98535b8a9ff7f2407330bf6c0b9380f7d1b8b30",
+      "app/assistant/conversations.py": "e7e45a0f8d12dbae9d60a80a78b1d1038c55abf8b98c3ad2d8ef7481a849b9e7",
+      "app/assistant/tracing.py": "fa57a659d75307ba65cda1d084b8d516b1c5faf4199814283d81636c4f146311",
+      "app/assistant/policy.py": "8195d90495f9f2e57e003af405344ce925ac942dc036b95e0ff0aa1944080f18",
+      "app/assistant/operations.py": "00708db5ef7d3dd2196ff53002b0d21028558ad243510e605e078d8833559272",
+      "app/assistant/response_guard.py": "8b4c341dd8ad2ffdfb51c08c0ce77c93de14585307c14574e9466e2ae6f6543c",
+      "app/prompts/answer_system.txt": "dd503dc653aa696214af915c14600a10108f0935a64e21ca0faafba4e02b5ab5"
+    }
+  },
+  "personal_service_deployed": false,
+  "original_service_is_acceptance_version": false
+}

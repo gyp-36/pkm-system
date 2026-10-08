@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/assistant-remediation/tests/commit_stream_validation.py", line 27, in <module>
+    assert answer['operation_receipts'] and answer['operation_receipts'][0]['action']=='created'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

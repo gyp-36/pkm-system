@@ -1,0 +1,46 @@
+[
+  {
+    "arguments": [
+      "--output",
+      "frozen-results.jsonl"
+    ],
+    "exit_code": 0
+  },
+  {
+    "arguments": [
+      "--ids",
+      "O07,O08,O13,O17,O19,O21,O25,O26,O28,O30,O31,O32,O33,O38,O41,O45,O53,O54,O55,O58,O60,S031,S033,S034,S035,S038,S054,S055,S058,S060,S064,S072,S076,S077,S083,S084,S085,S098,S104,S105,S109,S110,S117,S118,S123,S136,S137,S138,S139",
+      "--repeat-count",
+      "2",
+      "--output",
+      "acceptance-supplement-results.jsonl"
+    ],
+    "exit_code": 0
+  },
+  {
+    "arguments": [
+      "--cases-file",
+      "extra-cases.json",
+      "--repeat-count",
+      "3",
+      "--output",
+      "acceptance-extra-results.jsonl"
+    ],
+    "exit_code": 0
+  },
+  {
+    "arguments": [
+      "--ids",
+      "S020,S140",
+      "--repeat-count",
+      "3",
+      "--output",
+      "provider-recovery-results.jsonl"
+    ],
+    "exit_code": 0
+  },
+  {
+    "script": "history_validation.py",
+    "exit_code": 0
+  }
+]

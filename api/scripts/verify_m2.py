@@ -128,7 +128,7 @@ def main() -> None:
             assert "时间管理" in keyword_query_variants("我记录了什么时间管理方法？")
             assert FakeModelHandler.search_evidence[0] and len(FakeModelHandler.search_evidence[0]) == 5
             rejected = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "请根据我的笔记给出一个无效引用"})
-            assert rejected["citations"] == [] and "核对" in rejected["answer"]
+            assert rejected["citations"] == [] and "S999" not in rejected["answer"] and any(word in rejected["answer"] for word in ("核对", "核实", "依据"))
             analysis = checked(alice, "POST", "/v1/assistant/analyze", 200, json={"note_id": note["id"]})
             assert analysis["suggestions"] and analysis["citations"]
             suggestion = checked(alice, "POST", "/v1/assistant/classify", 200, json={"note_id": note["id"]})

@@ -1,0 +1,695 @@
+[
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BODY_PREVIEW_NO_NULL_TITLE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NOMINAL_USER_MATERIAL_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "EXPLICIT_ASSISTANT_COMPLETION_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BARE_COMPLETION_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_PROFESSIONAL_DISCUSSION_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SELF_ACTION_THEN_DOCTOR_BLOCK",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_DOCTOR_DECISION_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_CARD_ACCOUNT_SCOPE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_CARD_CONTEXT_SCOPE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REPLAY_CARD_SCOPE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_FAILURE_CONTRACT",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOUNDED_VERIFIER_CORRECTION",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_CORRECTION_FAIL_CLOSED",
+    "rep": 1,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BODY_PREVIEW_NO_NULL_TITLE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NOMINAL_USER_MATERIAL_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "EXPLICIT_ASSISTANT_COMPLETION_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BARE_COMPLETION_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_PROFESSIONAL_DISCUSSION_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SELF_ACTION_THEN_DOCTOR_BLOCK",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_DOCTOR_DECISION_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_CARD_ACCOUNT_SCOPE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_CARD_CONTEXT_SCOPE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REPLAY_CARD_SCOPE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_FAILURE_CONTRACT",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOUNDED_VERIFIER_CORRECTION",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_CORRECTION_FAIL_CLOSED",
+    "rep": 2,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_base64",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_hex",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REGISTERED_ID_suffix",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_title",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_untrusted",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "TYPE_metadata",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOOL_NOT_INDEX",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LITERAL_JSON_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_EXTENSION_DROP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "MALFORMED_NO_CANARY",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "PREVIEW_RECURSIVE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BODY_PREVIEW_NO_NULL_TITLE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NEGATED_STATE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "NOMINAL_USER_MATERIAL_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "EXPLICIT_ASSISTANT_COMPLETION_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BARE_COMPLETION_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "POSITIVE_AFTER_NEGATION_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_AMBIGUITY_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SAFE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_PROFESSIONAL_DISCUSSION_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_SELF_ACTION_THEN_DOCTOR_BLOCK",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HEALTH_DOCTOR_DECISION_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "SUMMARY_PROJECTION",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_TOOL_ROLE_DROP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "DOCUMENT_PROVENANCE_KEEP",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "LEGACY_CARD_ACCOUNT_SCOPE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "HISTORY_CARD_CONTEXT_SCOPE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "REPLAY_CARD_SCOPE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "STALE_PROVENANCE_REJECT",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "UNVERIFIED_NOTE_NO_GENERAL_ESCAPE",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_FAILURE_CONTRACT",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "BOUNDED_VERIFIER_CORRECTION",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  },
+  {
+    "id": "VERIFIER_CORRECTION_FAIL_CLOSED",
+    "rep": 3,
+    "passed": true,
+    "mode": "deterministic_or_real_postgres_synthetic_data",
+    "model_calls": 0
+  }
+]
