@@ -13,12 +13,17 @@ from pathlib import Path
 
 import httpx
 
+from app.core.model_providers import embedding_backend
+
 
 MODEL = os.environ.get("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
 VISION_MODEL = os.environ.get("VISION_MODEL", "qwen3-vl:2b-instruct")
 OLLAMA = os.environ.get("OLLAMA_URL", "http://ollama:11434")
 
-if MODEL != "qwen3-embedding:0.6b":
+# 用第三方 provider 时模型由服务方托管，本地无 Ollama 可拉取，整体跳过。
+_USE_OLLAMA = embedding_backend().provider == "ollama"
+
+if _USE_OLLAMA and MODEL != "qwen3-embedding:0.6b":
     raise SystemExit(f"Unexpected bootstrap model: {MODEL}")
 
 
@@ -83,6 +88,9 @@ def stage_blob(client: httpx.Client, registry: str, digest: str) -> None:
 
 
 def main() -> None:
+    if not _USE_OLLAMA:
+        print("使用第三方模型 provider，无需本地拉取模型。", flush=True)
+        return
     with httpx.Client(follow_redirects=True, timeout=30) as client:
         if not installed(client, MODEL):
             pull(client, MODEL)

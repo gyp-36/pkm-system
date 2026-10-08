@@ -23,6 +23,7 @@ from app.knowledge.upload_sessions import router as upload_sessions_router
 from app.knowledge.archive import router as archive_router
 from app.knowledge.templates import router as templates_router
 from app.core.object_storage import ensure_bucket
+from app.core.model_providers import embedding_backend
 from app.ops.audit_middleware import AuditAccessMiddleware
 
 
@@ -85,15 +86,18 @@ def ready() -> dict[str, str]:
 
 @app.get("/health/embedding")
 def embedding() -> dict[str, str]:
-    model = os.environ.get("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
-    url = os.environ.get("OLLAMA_URL", "http://ollama:11434")
+    # 第三方 provider 不做周期性计费探测：/health/embedding 每 10s 被调用，
+    # 真去调一次嵌入接口会持续产生调用量与费用。此处仅校验配置可解析。
+    backend = embedding_backend()
+    if backend.provider == "openai":
+        return {"status": "ok", "provider": "openai", "model": backend.model}
     try:
         with httpx.Client(timeout=5.0) as client:
-            response = client.get(f"{url}/api/tags")
+            response = client.get(f"{backend.base_url}/api/tags")
             response.raise_for_status()
             names = {item.get("name") for item in response.json().get("models", [])}
     except (httpx.HTTPError, ValueError) as exc:
         raise HTTPException(status_code=503, detail="embedding service unavailable") from exc
-    if model not in names:
+    if backend.model not in names:
         raise HTTPException(status_code=503, detail="embedding model not installed")
-    return {"status": "ok", "model": model}
+    return {"status": "ok", "provider": "ollama", "model": backend.model}

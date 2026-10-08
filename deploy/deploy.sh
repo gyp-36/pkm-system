@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # 云服务器一键部署脚本（幂等，可重复执行）。
 #
-# 用法：
+# 用法（本地 Ollama，需 ≥4GB 内存）：
 #   DOMAIN=pkm.example.com STORAGE_DOMAIN=storage.pkm.example.com ./deploy/deploy.sh
 #
+# 用法（第三方模型，2GB 也可，强烈推荐）：
+#   DOMAIN=pkm.example.com STORAGE_DOMAIN=storage.pkm.example.com \
+#     DASHSCOPE_API_KEY=sk-xxx ./deploy/deploy.sh
+#
 # 首次执行会生成含随机密钥的 .env.prod（权限 600）；已存在时复用，不会覆盖。
-# 之后构建镜像、执行数据库迁移、启动全部服务，并下载本地模型。
+# 之后构建镜像、执行数据库迁移、启动全部服务；本地模式再下载 Ollama 模型。
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -14,9 +18,17 @@ ENV_FILE="$ROOT/.env.prod"
 
 DOMAIN="${DOMAIN:-}"
 STORAGE_DOMAIN="${STORAGE_DOMAIN:-${OBJECT_STORAGE_DOMAIN:-}}"
+MODEL_PROVIDER="ollama"
+if [[ -n "${DASHSCOPE_API_KEY:-}" || "${EMBEDDING_PROVIDER:-}" == "openai" ]]; then
+  MODEL_PROVIDER="openai"
+fi
 if [[ -z "$DOMAIN" || -z "$STORAGE_DOMAIN" ]]; then
   echo "错误：必须提供 DOMAIN 和 STORAGE_DOMAIN 环境变量。" >&2
   echo "示例：DOMAIN=pkm.example.com STORAGE_DOMAIN=storage.pkm.example.com $0" >&2
+  exit 1
+fi
+if [[ "$MODEL_PROVIDER" == "openai" && -z "${DASHSCOPE_API_KEY:-}${EMBEDDING_API_KEY:-}" ]]; then
+  echo "错误：第三方模型模式需要 DASHSCOPE_API_KEY（或 EMBEDDING_API_KEY）。" >&2
   exit 1
 fi
 
@@ -50,6 +62,22 @@ PKM_FILE_LINK_SECRET=$(rand_hex 32)
 OBJECT_STORAGE_ACCESS_KEY=$(openssl rand -hex 16 | tr 'a-f' 'A-F')
 OBJECT_STORAGE_SECRET_KEY=$(openssl rand -base64 36 | tr -d '\n')
 OBJECT_STORAGE_BUCKET=pkm-files
+EOF
+  if [[ "$MODEL_PROVIDER" == "openai" ]]; then
+    cat >> "$ENV_FILE" <<EOF
+
+# 模型：第三方 OpenAI 兼容服务（默认百炼 DashScope），无需 Ollama
+EMBEDDING_PROVIDER=openai
+EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-v3}
+EMBEDDING_API_KEY=${EMBEDDING_API_KEY:-${DASHSCOPE_API_KEY:-}}
+VISION_PROVIDER=openai
+VISION_BASE_URL=${VISION_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+VISION_MODEL=${VISION_MODEL:-qwen-vl-plus}
+VISION_API_KEY=${VISION_API_KEY:-${DASHSCOPE_API_KEY:-}}
+EOF
+  fi
+  cat >> "$ENV_FILE" <<EOF
 
 # 前端与对象存储的公网域名（前置 Caddy 终结 HTTPS）
 DOMAIN=$DOMAIN
@@ -59,24 +87,36 @@ OBJECT_STORAGE_DOMAIN=$STORAGE_DOMAIN
 WEB_HOST_PORT=80
 EOF
   chmod 600 "$ENV_FILE"
-  echo "已写入 $ENV_FILE"
+  echo "已写入 $ENV_FILE（模型 provider：$MODEL_PROVIDER）"
 else
   echo "复用已存在的 $ENV_FILE（未覆盖）。"
 fi
 
 COMPOSE=(docker compose --env-file "$ENV_FILE" -f compose.yaml -f compose.prod.yaml)
 
-echo "==> 构建并启动服务（不含 office profile）"
-"${COMPOSE[@]}" up -d --build --wait
+# 契约门禁：先构建 api 镜像并静态校验（响应契约覆盖 / tool 信封 / 归属过滤）。
+# 未通过则中止，避免把无契约或越权的变更部署上线。
+echo "==> 契约门禁（静态检查）"
+if ! "${COMPOSE[@]}" --profile gate run --rm contract-check; then
+  echo "契约门禁未通过，部署中止。请按上方提示修正后重试。" >&2
+  exit 1
+fi
 
-echo "==> 下载本地模型（embeddings + vision，首次较慢）"
-"${COMPOSE[@]}" --profile model-setup run --rm model-init
+echo "==> 构建并启动服务（不含 office profile）"
+if [[ "$MODEL_PROVIDER" == "openai" ]]; then
+  # 第三方模式：不启动 ollama 容器（内存友好）。
+  "${COMPOSE[@]}" up -d --build --wait --scale ollama=0
+else
+  "${COMPOSE[@]}" up -d --build --wait
+  echo "==> 下载本地模型（embeddings + vision，首次较慢）"
+  "${COMPOSE[@]}" --profile model-setup run --rm model-init
+fi
 
 echo "==> 运行模型连接自检"
 "${COMPOSE[@]}" exec -T api /app/.venv/bin/python -m app.ops.probe || true
 
 echo
-echo "部署完成。"
+echo "部署完成（模型 provider：$MODEL_PROVIDER）。"
 echo "  服务状态： ${COMPOSE[*]} ps"
 echo "  下一步  ： 确认 DNS 已解析到本机，并启动宿主 Caddy（见 deploy/Caddyfile.example）"
 echo "  浏览器  ： https://$DOMAIN/docs"

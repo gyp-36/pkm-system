@@ -48,7 +48,7 @@ def extract_file(
 ) -> tuple[str, list[tuple[int, int, dict]], str]:
     from pypdf import PdfReader
     from app.knowledge.m3 import extract_text
-    from app.knowledge.ollama_vision import describe_image_bytes
+    from app.knowledge.vision import describe_image_bytes
 
     vision_results = vision_results or {}
 

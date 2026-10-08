@@ -6,7 +6,8 @@
 # 与仓库内 compose.yaml / compose.prod.yaml 等价，但：
 #   - api / web 直接用已加载的 pkm-api:prod、pkm-web:prod 镜像（去掉了 build）
 #   - 已内置生产覆盖：OBJECT_STORAGE_PUBLIC_ENDPOINT 指向公网对象存储子域
-#   - 依赖镜像（pgvector / ollama / minio）由服务器自行拉取或复用
+#   - 嵌入与视觉模型走第三方 OpenAI 兼容服务（默认百炼 DashScope），**不含 ollama 容器**
+#   - 依赖镜像仅 pgvector / minio
 #   - 不启用 office profile（2GB 实例不跑 ONLYOFFICE）
 
 name: pkm-system
@@ -15,10 +16,17 @@ x-api-environment: &api-environment
   APP_ENV: ${APP_ENV:-production}
   ASSISTANT_TRACE_VIEW_ENABLED: ${ASSISTANT_TRACE_VIEW_ENABLED:-false}
   DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-  OLLAMA_URL: http://ollama:11434
   OLLAMA_INFERENCE_QUEUE_TIMEOUT_SECONDS: "300"
-  EMBEDDING_MODEL: qwen3-embedding:0.6b
-  VISION_MODEL: ${VISION_MODEL:-qwen3-vl:2b-instruct}
+  # 生产用第三方模型（阿里云百炼 DashScope 兼容模式），彻底去掉 Ollama 容器。
+  # 本地开发仍由仓库内 compose.yaml 走 ollama，与此文件无关。
+  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+  EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-v3}
+  EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-${DASHSCOPE_API_KEY:-}}
+  VISION_PROVIDER: ${VISION_PROVIDER:-openai}
+  VISION_BASE_URL: ${VISION_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+  VISION_MODEL: ${VISION_MODEL:-qwen-vl-plus}
+  VISION_API_KEY: ${VISION_API_KEY:-${DASHSCOPE_API_KEY:-}}
   OBJECT_STORAGE_ENDPOINT: http://minio:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: https://${OBJECT_STORAGE_DOMAIN}
   OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-pkm-files}
@@ -43,18 +51,6 @@ services:
       retries: 20
     restart: unless-stopped
 
-  ollama:
-    image: ollama/ollama:0.35.0
-    volumes:
-      - ollama_data:/root/.ollama
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 10s
-    restart: unless-stopped
-
   minio:
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: ["server", "/data", "--console-address", ":9001"]
@@ -72,13 +68,10 @@ services:
     image: pkm-api:prod
     profiles: ["model-setup"]
     environment:
-      OLLAMA_URL: http://ollama:11434
-      EMBEDDING_MODEL: qwen3-embedding:0.6b
-      VISION_MODEL: ${VISION_MODEL:-qwen3-vl:2b-instruct}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-openai}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-v3}
+      VISION_MODEL: ${VISION_MODEL:-qwen-vl-plus}
     command: ["/app/.venv/bin/python", "-m", "app.ops.model_bootstrap"]
-    depends_on:
-      ollama:
-        condition: service_healthy
     restart: "no"
 
   migrate:
@@ -98,6 +91,8 @@ services:
       PKM_FILE_LINK_SECRET: ${PKM_FILE_LINK_SECRET:?请设置 PKM_FILE_LINK_SECRET}
       ONLYOFFICE_JWT_SECRET: ${ONLYOFFICE_JWT_SECRET:-local-onlyoffice-secret}
       PUBLIC_APP_URL: http://api:8000
+      # 生产走 HTTPS，会话 cookie 应带 Secure 标志
+      COOKIE_SECURE: ${COOKIE_SECURE:-0}
     volumes:
       - note_files:/data/note-files
     depends_on:
@@ -117,6 +112,8 @@ services:
     image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.worker"]
+    mem_limit: 320m
+    memswap_limit: 320m
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -126,6 +123,8 @@ services:
     image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.digest_worker"]
+    mem_limit: 320m
+    memswap_limit: 320m
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -137,6 +136,8 @@ services:
       <<: *api-environment
       INGEST_WORKER_EXTENSIONS: pdf,png
     command: ["/app/.venv/bin/python", "-m", "app.ops.ingest_worker"]
+    mem_limit: 512m
+    memswap_limit: 512m
     volumes:
       - note_files:/data/note-files
     depends_on:
@@ -153,6 +154,8 @@ services:
       INGEST_WORKER_EXTENSIONS: md,docx,xlsx,doc,xls
       RUN_INGEST_MAINTENANCE: "false"
     command: ["/app/.venv/bin/python", "-m", "app.ops.ingest_worker"]
+    mem_limit: 512m
+    memswap_limit: 512m
     volumes:
       - note_files:/data/note-files
     depends_on:
@@ -166,6 +169,8 @@ services:
     image: pkm-api:prod
     environment: *api-environment
     command: ["/app/.venv/bin/python", "-m", "app.ops.link_fetch_worker"]
+    mem_limit: 320m
+    memswap_limit: 320m
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -188,6 +193,5 @@ services:
 
 volumes:
   postgres_data:
-  ollama_data:
   note_files:
   minio_data:

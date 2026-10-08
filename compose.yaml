@@ -13,6 +13,14 @@ x-api-environment: &api-environment
   OLLAMA_INFERENCE_QUEUE_TIMEOUT_SECONDS: "300"
   EMBEDDING_MODEL: qwen3-embedding:0.6b
   VISION_MODEL: ${VISION_MODEL:-qwen3-vl:2b-instruct}
+  # 模型 provider：本地开发默认 ollama（同机容器，行为不变）。
+  # 生产可设为 openai，指向任意 OpenAI 兼容服务（如百炼 DashScope），从而去掉 ollama 容器。
+  EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
+  VISION_PROVIDER: ${VISION_PROVIDER:-ollama}
+  EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-}
+  EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+  VISION_BASE_URL: ${VISION_BASE_URL:-}
+  VISION_API_KEY: ${VISION_API_KEY:-}
   OBJECT_STORAGE_ENDPOINT: http://minio:9000
   OBJECT_STORAGE_PUBLIC_ENDPOINT: http://localhost:${OBJECT_STORAGE_HOST_PORT:-19000}
   OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-pkm-files}
@@ -67,8 +75,9 @@ services:
     profiles: ["model-setup"]
     environment:
       OLLAMA_URL: http://ollama:11434
-      EMBEDDING_MODEL: qwen3-embedding:0.6b
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-qwen3-embedding:0.6b}
       VISION_MODEL: ${VISION_MODEL:-qwen3-vl:2b-instruct}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-ollama}
     command: ["/app/.venv/bin/python", "-m", "app.ops.model_bootstrap"]
     depends_on:
       ollama:
@@ -201,6 +210,14 @@ services:
       retries: 12
       start_period: 10s
     restart: unless-stopped
+
+  # 契约门禁：构建前静态检查（响应契约覆盖、tool 信封、归属过滤）。红灯即阻止部署。
+  contract-check:
+    <<: *api-image
+    profiles: ["gate"]
+    environment: *api-environment
+    command: ["/app/.venv/bin/python", "-m", "scripts.contract_check", "--static"]
+    restart: "no"
 
 volumes:
   postgres_data:
