@@ -1,0 +1,312 @@
+{
+  "declared": [
+    {
+      "route": "DELETE /v1/assistant/conversations/{conversation_id}/messages/{message_id}",
+      "model": "conversations.ConversationWithMessagesOut"
+    },
+    {
+      "route": "GET /v1/assistant/conversations",
+      "model": "conversations.ConversationListOut"
+    },
+    {
+      "route": "GET /v1/assistant/conversations/{conversation_id}",
+      "model": "conversations.ConversationWithMessagesOut"
+    },
+    {
+      "route": "GET /v1/auth/me",
+      "model": "auth.AccountOut"
+    },
+    {
+      "route": "GET /v1/dev/assistant-traces",
+      "model": "tracing.TraceListOut"
+    },
+    {
+      "route": "GET /v1/dev/assistant-traces/by-message/{assistant_message_id}",
+      "model": "tracing.TraceOut"
+    },
+    {
+      "route": "GET /v1/dev/assistant-traces/enabled",
+      "model": "tracing.TraceEnabledOut"
+    },
+    {
+      "route": "GET /v1/dev/assistant-traces/{trace_id}",
+      "model": "tracing.TraceOut"
+    },
+    {
+      "route": "GET /v1/digests",
+      "model": "digests.DigestListOut"
+    },
+    {
+      "route": "GET /v1/digests/settings",
+      "model": "digests.DigestSettingsOut"
+    },
+    {
+      "route": "GET /v1/file-uploads/sessions",
+      "model": "upload_sessions.UploadSessionListOut"
+    },
+    {
+      "route": "GET /v1/file-uploads/sessions/{upload_id}",
+      "model": "upload_sessions.UploadSessionOut"
+    },
+    {
+      "route": "GET /v1/link-drafts",
+      "model": "m3.LinkDraftListOut"
+    },
+    {
+      "route": "GET /v1/link-drafts/{draft_id}",
+      "model": "m3.LinkDraftOut"
+    },
+    {
+      "route": "GET /v1/model-connection",
+      "model": "model_connection.ModelConnectionOut"
+    },
+    {
+      "route": "GET /v1/note-templates",
+      "model": "templates.NoteTemplateOut"
+    },
+    {
+      "route": "GET /v1/notebooks",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "GET /v1/notebooks/{item_id}",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "GET /v1/notes",
+      "model": "notes.NoteListOut"
+    },
+    {
+      "route": "GET /v1/notes/archive",
+      "model": "archive.ArchiveListOut"
+    },
+    {
+      "route": "GET /v1/notes/{note_id}",
+      "model": "notes.NoteOut"
+    },
+    {
+      "route": "GET /v1/notes/{note_id}/chunks",
+      "model": "notes.NoteChunksOut"
+    },
+    {
+      "route": "GET /v1/notes/{note_id}/editor-config",
+      "model": "m3.EditorConfigOut"
+    },
+    {
+      "route": "GET /v1/notes/{note_id}/image-references",
+      "model": "notes.ImageReferenceListOut"
+    },
+    {
+      "route": "GET /v1/reminders",
+      "model": "reminders.ReminderListOut"
+    },
+    {
+      "route": "GET /v1/search",
+      "model": "search.SearchResponseOut"
+    },
+    {
+      "route": "GET /v1/tags",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "GET /v1/tags/{item_id}",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "GET /v1/workbench",
+      "model": "reminders.WorkbenchOut"
+    },
+    {
+      "route": "PATCH /v1/assistant/conversations/{conversation_id}",
+      "model": "conversations.ConversationOut"
+    },
+    {
+      "route": "PATCH /v1/digests/settings",
+      "model": "digests.DigestSettingsOut"
+    },
+    {
+      "route": "PATCH /v1/link-drafts/{draft_id}",
+      "model": "m3.LinkDraftOut"
+    },
+    {
+      "route": "PATCH /v1/model-connection",
+      "model": "model_connection.ModelConnectionOut"
+    },
+    {
+      "route": "PATCH /v1/note-templates/{template_id}",
+      "model": "templates.NoteTemplateOut"
+    },
+    {
+      "route": "PATCH /v1/notebooks/{item_id}",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "PATCH /v1/notes/{note_id}",
+      "model": "notes.NoteOut"
+    },
+    {
+      "route": "PATCH /v1/reminders/{reminder_id}",
+      "model": "reminders.ReminderOut"
+    },
+    {
+      "route": "PATCH /v1/tags/{item_id}",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "POST /v1/assistant/analyze",
+      "model": "assistant.AnalyzeOut"
+    },
+    {
+      "route": "POST /v1/assistant/ask",
+      "model": "assistant.AnswerOut"
+    },
+    {
+      "route": "POST /v1/assistant/classify",
+      "model": "assistant.ClassifyOut"
+    },
+    {
+      "route": "POST /v1/assistant/conversations",
+      "model": "conversations.ConversationOut"
+    },
+    {
+      "route": "POST /v1/assistant/conversations/{conversation_id}/messages",
+      "model": "conversations.ConversationWithMessagesOut"
+    },
+    {
+      "route": "POST /v1/auth/login",
+      "model": "auth.AccountOut"
+    },
+    {
+      "route": "POST /v1/auth/register",
+      "model": "auth.AccountOut"
+    },
+    {
+      "route": "POST /v1/digests/{run_id}/retry",
+      "model": "digests.DigestRunOut"
+    },
+    {
+      "route": "POST /v1/file-uploads/sessions",
+      "model": "upload_sessions.UploadSessionOut"
+    },
+    {
+      "route": "POST /v1/file-uploads/sessions/{upload_id}/complete",
+      "model": "upload_sessions.UploadActionResultOut"
+    },
+    {
+      "route": "POST /v1/file-uploads/sessions/{upload_id}/parts/{part_number}/url",
+      "model": "upload_sessions.PartUrlOut"
+    },
+    {
+      "route": "POST /v1/file-uploads/sessions/{upload_id}/retry",
+      "model": "upload_sessions.UploadActionResultOut"
+    },
+    {
+      "route": "POST /v1/file-uploads/sessions/{upload_id}/retry-ingest",
+      "model": "upload_sessions.UploadActionResultOut"
+    },
+    {
+      "route": "POST /v1/integrations/onlyoffice/callback/{note_id}",
+      "model": "m3.OnlyofficeCallbackOut"
+    },
+    {
+      "route": "POST /v1/link-drafts",
+      "model": "m3.LinkDraftOut"
+    },
+    {
+      "route": "POST /v1/link-drafts/{draft_id}/analyze",
+      "model": "m3.ContentAnalysisOut"
+    },
+    {
+      "route": "POST /v1/link-drafts/{draft_id}/publish",
+      "model": "notes.NoteOut"
+    },
+    {
+      "route": "POST /v1/link-drafts/{draft_id}/rewrite",
+      "model": "m3.LinkDraftRewriteOut"
+    },
+    {
+      "route": "POST /v1/model-connection/test",
+      "model": "model_connection.ModelConnectionOut"
+    },
+    {
+      "route": "POST /v1/note-templates",
+      "model": "templates.NoteTemplateOut"
+    },
+    {
+      "route": "POST /v1/notebooks",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "POST /v1/notes",
+      "model": "notes.NoteOut"
+    },
+    {
+      "route": "POST /v1/notes/archive/purge",
+      "model": "archive.ArchivePurgeOut"
+    },
+    {
+      "route": "POST /v1/notes/archive/{note_id}/restore",
+      "model": "archive.ArchiveRestoreOut"
+    },
+    {
+      "route": "POST /v1/notes/file-duplicate-check",
+      "model": "m3.DuplicateCheckOut"
+    },
+    {
+      "route": "POST /v1/notes/upload",
+      "model": "notes.NoteOut"
+    },
+    {
+      "route": "POST /v1/notes/{note_id}/reminders",
+      "model": "reminders.ReminderOut"
+    },
+    {
+      "route": "POST /v1/reminders",
+      "model": "reminders.ReminderOut"
+    },
+    {
+      "route": "POST /v1/tags",
+      "model": "taxonomy.ClassificationOut"
+    },
+    {
+      "route": "PUT /v1/digests/settings",
+      "model": "digests.DigestSettingsOut"
+    },
+    {
+      "route": "PUT /v1/file-uploads/sessions/{upload_id}/parts/{part_number}/receipt",
+      "model": "upload_sessions.PartsReceiptOut"
+    },
+    {
+      "route": "PUT /v1/model-connection",
+      "model": "model_connection.ModelConnectionOut"
+    },
+    {
+      "route": "PUT /v1/notes/{note_id}/file",
+      "model": "notes.NoteOut"
+    }
+  ],
+  "allowlisted": [
+    "DELETE /v1/assistant/conversations/{conversation_id}",
+    "DELETE /v1/file-uploads/sessions/{upload_id}",
+    "DELETE /v1/link-drafts/{draft_id}",
+    "DELETE /v1/model-connection",
+    "DELETE /v1/note-templates/{template_id}",
+    "DELETE /v1/notebooks/{item_id}",
+    "DELETE /v1/notes/archive/{note_id}",
+    "DELETE /v1/notes/{note_id}",
+    "DELETE /v1/reminders/{reminder_id}",
+    "DELETE /v1/tags/{item_id}",
+    "GET /health/embedding",
+    "GET /health/live",
+    "GET /health/ready",
+    "GET /v1/files/{storage_key}",
+    "GET /v1/notebooks/{notebook_id}/export",
+    "GET /v1/notes/export",
+    "GET /v1/notes/{note_id}/export",
+    "GET /v1/notes/{note_id}/file",
+    "POST /v1/assistant/conversations/{conversation_id}/messages/stream",
+    "POST /v1/auth/logout"
+  ],
+  "unmodeled": [],
+  "note": "未建模端点（迁移到 response_model 后逐项移出）。新增端点若未建模且不在此清单，门禁失败。"
+}

@@ -12,6 +12,7 @@ from app.auth.auth import Db, UserId
 from app.core.enums import AuditAction, AuditEntityType
 from app.core.lifecycle import record_event
 from app.core.models import NoteTemplate
+from app.contracts.templates import NoteTemplateOut
 
 
 router = APIRouter(prefix="/v1/note-templates", tags=["note-templates"])
@@ -54,7 +55,7 @@ def template_json(item: NoteTemplate) -> dict:
     }
 
 
-@router.get("")
+@router.get("", response_model=list[NoteTemplateOut])
 def list_templates(db: Db, user_id: UserId) -> list[dict]:
     rows = db.scalars(
         select(NoteTemplate)
@@ -64,7 +65,7 @@ def list_templates(db: Db, user_id: UserId) -> list[dict]:
     return [template_json(item) for item in rows]
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=NoteTemplateOut)
 def create_template(body: TemplateCreate, db: Db, user_id: UserId) -> dict:
     item = NoteTemplate(user_id=user_id, name=body.name, title=body.title, body_md=body.body_md)
     db.add(item)
@@ -80,7 +81,7 @@ def create_template(body: TemplateCreate, db: Db, user_id: UserId) -> dict:
     return template_json(item)
 
 
-@router.patch("/{template_id}")
+@router.patch("/{template_id}", response_model=NoteTemplateOut)
 def rename_template(template_id: uuid.UUID, body: TemplateRename, db: Db, user_id: UserId) -> dict:
     item = db.scalar(
         select(NoteTemplate).where(NoteTemplate.id == template_id, NoteTemplate.user_id == user_id).with_for_update()

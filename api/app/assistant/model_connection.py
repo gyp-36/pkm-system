@@ -17,6 +17,7 @@ from app.auth.auth import Db, UserId
 from app.core.enums import AuditAction, AuditEntityType, ModelProvider
 from app.core.lifecycle import record_event
 from app.core.models import ModelConnection
+from app.contracts.model_connection import ConnectionTestOut, ModelConnectionOut
 from app.core.rate_limit import check_limit
 from app.prompts import load_prompt
 
@@ -98,12 +99,12 @@ def public_connection(row: ModelConnection | None) -> dict:
     }
 
 
-@router.get("")
+@router.get("", response_model=ModelConnectionOut)
 def get_connection(db: Db, user_id: UserId) -> dict:
     return public_connection(active_connection(db, user_id))
 
 
-@router.put("")
+@router.put("", response_model=ModelConnectionOut)
 def put_connection(body: ConnectionInput, db: Db, user_id: UserId) -> dict:
     encrypted = cipher().encrypt(body.api_key.get_secret_value().encode("utf-8"))
     row = active_connection(db, user_id, lock=True)
@@ -130,7 +131,7 @@ def put_connection(body: ConnectionInput, db: Db, user_id: UserId) -> dict:
     return public_connection(row)
 
 
-@router.patch("")
+@router.patch("", response_model=ModelConnectionOut)
 def select_model(body: ModelSelectionInput, db: Db, user_id: UserId) -> dict:
     row = active_connection(db, user_id, lock=True)
     if row is None:
@@ -144,7 +145,7 @@ def select_model(body: ModelSelectionInput, db: Db, user_id: UserId) -> dict:
     return public_connection(row)
 
 
-@router.post("/test")
+@router.post("/test", response_model=ConnectionTestOut)
 def test_connection(body: ConnectionTestInput, db: Db, user_id: UserId) -> dict:
     row = active_connection(db, user_id)
     if body.api_key is None and row is None:

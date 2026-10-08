@@ -15,6 +15,8 @@ from app.auth.auth import Db, UserId
 from app.core.enums import AuditAction, AuditEntityType, ChunkSource, IndexJobStatus, NoteIndexStatus
 from app.core.lifecycle import record_event, record_revision
 from app.core.models import IndexJob, MarkdownImageReference, Note, NoteChunk, NoteFileVersion, Notebook, NoteTag, Tag
+from app.core.ownership import owned_note
+from app.contracts.notes import (NoteChunksOut, NoteListOut, NoteOut, ImageReferenceListOut)
 from app.knowledge.file_types import IMAGE_EXTENSIONS
 from app.knowledge.markdown_images import sync_markdown_image_references
 
@@ -99,16 +101,6 @@ def note_json(db: Db, note: Note, include_body: bool = True) -> dict:
     return result
 
 
-def owned_note(db: Db, note_id: uuid.UUID, user_id: uuid.UUID, lock: bool = False) -> Note:
-    query = select(Note).where(Note.id == note_id, Note.user_id == user_id, Note.deleted_at.is_(None))
-    if lock:
-        query = query.with_for_update()
-    note = db.scalar(query)
-    if note is None:
-        raise HTTPException(status_code=404, detail="笔记不存在")
-    return note
-
-
 def validate_categories(db: Db, user_id: uuid.UUID, notebook_id: uuid.UUID | None, tag_ids: list[uuid.UUID]) -> list[uuid.UUID]:
     if notebook_id is not None and db.scalar(select(Notebook.id).where(Notebook.id == notebook_id, Notebook.user_id == user_id, Notebook.deleted_at.is_(None)).with_for_update()) is None:
         raise HTTPException(status_code=404, detail="笔记本不存在")
@@ -166,7 +158,7 @@ def download_response(content: str | bytes, filename: str, media_type: str) -> R
     return Response(content=content, media_type=media_type, headers={"Content-Disposition": disposition})
 
 
-@router.get("")
+@router.get("", response_model=NoteListOut)
 def list_notes(
     db: Db,
     user_id: UserId,
@@ -248,7 +240,7 @@ def export_all_notes(db: Db, user_id: UserId) -> Response:
     return _export_notes(db, [note for note, _ in rows], f"pkm-notes-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.zip")
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=NoteOut)
 def create_note(body: NoteCreate, db: Db, user_id: UserId) -> dict:
     tag_ids = validate_categories(db, user_id, body.notebook_id, body.tag_ids)
     note = Note(user_id=user_id, notebook_id=body.notebook_id, title=body.title, body_md=body.body_md, version=1)
@@ -263,12 +255,12 @@ def create_note(body: NoteCreate, db: Db, user_id: UserId) -> dict:
     return note_json(db, note)
 
 
-@router.get("/{note_id}")
+@router.get("/{note_id}", response_model=NoteOut)
 def get_note(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return note_json(db, owned_note(db, note_id, user_id))
 
 
-@router.get("/{note_id}/image-references")
+@router.get("/{note_id}/image-references", response_model=ImageReferenceListOut)
 def get_image_references(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     image = owned_note(db, note_id, user_id)
     if image.content_kind not in IMAGE_EXTENSIONS:
@@ -292,7 +284,7 @@ def get_image_references(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     }
 
 
-@router.get("/{note_id}/chunks")
+@router.get("/{note_id}/chunks", response_model=NoteChunksOut)
 def get_note_chunks(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     """Return the active indexed chunks for one account-owned note."""
     note = owned_note(db, note_id, user_id)
@@ -336,8 +328,12 @@ def export_note(note_id: uuid.UUID, db: Db, user_id: UserId) -> Response:
     return download_response(note.body_md, filename, "text/markdown; charset=utf-8")
 
 
-@router.patch("/{note_id}")
+@router.patch("/{note_id}", response_model=NoteOut)
 def update_note(note_id: uuid.UUID, body: NoteUpdate, db: Db, user_id: UserId) -> dict:
+    return update_note_in_transaction(note_id, body, db, user_id, commit=True)
+
+
+def update_note_in_transaction(note_id: uuid.UUID, body: NoteUpdate, db, user_id: uuid.UUID, *, commit: bool = False) -> dict:
     note = owned_note(db, note_id, user_id, lock=True)
     if note.version != body.version:
         raise HTTPException(status_code=409, detail="笔记已有新版本，请刷新后重试")
@@ -369,8 +365,10 @@ def update_note(note_id: uuid.UUID, body: NoteUpdate, db: Db, user_id: UserId) -
             invalidate_markdown_references(db, user_id, note.id)
     record_revision(db, note, tag_ids)
     record_event(db, user_id, AuditAction.UPDATE, AuditEntityType.NOTE, note.id, entity_version=note.version, details={"fields": sorted(body.model_fields_set - {"version"})})
-    db.commit()
-    db.refresh(note)
+    db.flush()
+    if commit:
+        db.commit()
+        db.refresh(note)
     return note_json(db, note)
 
 

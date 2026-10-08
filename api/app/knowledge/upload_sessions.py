@@ -19,6 +19,8 @@ from app.core import object_storage
 from app.core.enums import AuditAction, AuditEntityType, NoteIndexStatus
 from app.core.lifecycle import record_event, record_revision
 from app.core.models import FileIngestJob, FileUploadSession, Note, NoteChunk, NoteFileVersion
+from app.core.ownership import owned_session
+from app.contracts.upload_sessions import (PartsReceiptOut, PartUrlOut, UploadActionResultOut, UploadSessionListOut, UploadSessionOut)
 from app.knowledge.notes import safe_filename, validate_categories
 from app.knowledge.file_types import ALLOWED_EXTENSIONS, MIME_BY_EXT
 
@@ -76,19 +78,7 @@ def _session_json(session: FileUploadSession, *, include_url_for: int | None = N
     }
 
 
-def _owned_session(db: Db, user_id: UserId, upload_id: uuid.UUID, *, lock: bool = False) -> FileUploadSession:
-    query = select(FileUploadSession).where(FileUploadSession.id == upload_id, FileUploadSession.user_id == user_id)
-    if lock:
-        query = query.with_for_update()
-    session = db.scalar(query)
-    if session is None:
-        raise HTTPException(status_code=404, detail="上传会话不存在")
-    if session.expires_at <= datetime.now(timezone.utc) and session.status not in {"completed", "duplicate", "cancelled"}:
-        raise HTTPException(status_code=410, detail="上传会话已过期，请重新上传")
-    return session
-
-
-@router.post("/sessions", status_code=201)
+@router.post("/sessions", status_code=201, response_model=UploadSessionOut)
 def create_session(
     body: UploadStart,
     db: Db,
@@ -156,7 +146,7 @@ def create_session(
     return _session_json(session)
 
 
-@router.get("/sessions")
+@router.get("/sessions", response_model=UploadSessionListOut)
 def list_resumable_sessions(db: Db, user_id: UserId) -> dict:
     rows = db.scalars(select(FileUploadSession).where(
         FileUploadSession.user_id == user_id,
@@ -171,10 +161,10 @@ def list_resumable_sessions(db: Db, user_id: UserId) -> dict:
     return {"items": [_session_json(row) for row in rows]}
 
 
-@router.post("/sessions/{upload_id}/retry-ingest")
-@router.post("/sessions/{upload_id}/retry")
+@router.post("/sessions/{upload_id}/retry-ingest", response_model=UploadActionResultOut)
+@router.post("/sessions/{upload_id}/retry", response_model=UploadActionResultOut)
 def retry_ingest(upload_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
-    session = _owned_session(db, user_id, upload_id, lock=True)
+    session = owned_session(db, user_id, upload_id, lock=True)
     if session.status != "completed" or not session.note_id:
         raise HTTPException(status_code=409, detail="文件尚未完成保存，不能重试识别")
     note = db.scalar(select(Note).where(Note.id == session.note_id, Note.user_id == user_id))
@@ -228,9 +218,9 @@ def retry_ingest(upload_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return {"status": "pending", "note": note_payload(db, note)}
 
 
-@router.get("/sessions/{upload_id}")
+@router.get("/sessions/{upload_id}", response_model=UploadSessionOut)
 def get_session(upload_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
-    session = _owned_session(db, user_id, upload_id)
+    session = owned_session(db, user_id, upload_id)
     result = _session_json(session)
     if session.note_id:
         from app.knowledge.m3 import note_payload
@@ -275,17 +265,17 @@ def get_session(upload_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return result
 
 
-@router.post("/sessions/{upload_id}/parts/{part_number}/url")
+@router.post("/sessions/{upload_id}/parts/{part_number}/url", response_model=PartUrlOut)
 def get_part_url(upload_id: uuid.UUID, part_number: int, db: Db, user_id: UserId) -> dict:
-    session = _owned_session(db, user_id, upload_id)
+    session = owned_session(db, user_id, upload_id)
     if session.status != "uploading" or not 1 <= part_number <= _part_count(session):
         raise HTTPException(status_code=409, detail="上传会话状态或分块序号无效")
     return {"url": object_storage.part_url(session.object_key, session.multipart_id, part_number), "size_bytes": _part_size(session, part_number), "expires_in": 900}
 
 
-@router.put("/sessions/{upload_id}/parts/{part_number}/receipt")
+@router.put("/sessions/{upload_id}/parts/{part_number}/receipt", response_model=PartsReceiptOut)
 def confirm_part(upload_id: uuid.UUID, part_number: int, body: PartReceipt, db: Db, user_id: UserId) -> dict:
-    session = _owned_session(db, user_id, upload_id, lock=True)
+    session = owned_session(db, user_id, upload_id, lock=True)
     if session.status != "uploading" or not 1 <= part_number <= _part_count(session):
         raise HTTPException(status_code=409, detail="上传会话状态或分块序号无效")
     if body.size_bytes != _part_size(session, part_number):
@@ -364,9 +354,9 @@ def _create_note_for_upload(db: Db, session: FileUploadSession, user_id: UserId,
     return note
 
 
-@router.post("/sessions/{upload_id}/complete")
+@router.post("/sessions/{upload_id}/complete", response_model=UploadActionResultOut)
 def complete_session(upload_id: uuid.UUID, body: CompleteParts, db: Db, user_id: UserId) -> dict:
-    session = _owned_session(db, user_id, upload_id, lock=True)
+    session = owned_session(db, user_id, upload_id, lock=True)
     if session.status == "completed":
         from app.knowledge.m3 import note_payload
         note = db.scalar(select(Note).where(Note.id == session.note_id, Note.user_id == user_id))
@@ -457,7 +447,7 @@ def complete_session(upload_id: uuid.UUID, body: CompleteParts, db: Db, user_id:
 
 @router.delete("/sessions/{upload_id}", status_code=204)
 def cancel_session(upload_id: uuid.UUID, db: Db, user_id: UserId) -> None:
-    session = _owned_session(db, user_id, upload_id, lock=True)
+    session = owned_session(db, user_id, upload_id, lock=True)
     if session.status in {"completed", "duplicate"}:
         raise HTTPException(status_code=409, detail="已完成的上传不能取消")
     if session.status == "completing":

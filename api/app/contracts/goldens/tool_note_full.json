@@ -1,0 +1,24 @@
+{
+  "keys": [
+    "body_md",
+    "citations",
+    "note_ref",
+    "related_image_context",
+    "title",
+    "untrusted"
+  ],
+  "nested": {
+    "citations": [
+      "excerpt",
+      "note_ref",
+      "source_field",
+      "source_ref"
+    ],
+    "related_image_context": [
+      "description",
+      "note_ref",
+      "source_ref",
+      "title"
+    ]
+  }
+}

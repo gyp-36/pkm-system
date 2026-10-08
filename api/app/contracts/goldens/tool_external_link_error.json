@@ -1,0 +1,10 @@
+{
+  "keys": [
+    "error_code",
+    "error_message",
+    "source_url",
+    "status",
+    "untrusted"
+  ],
+  "nested": {}
+}

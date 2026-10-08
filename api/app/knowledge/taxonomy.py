@@ -12,6 +12,8 @@ from app.auth.auth import Db, UserId
 from app.core.enums import AuditAction, AuditEntityType
 from app.core.lifecycle import record_event, record_revision
 from app.core.models import Note, Notebook, NoteTag, Tag
+from app.core.ownership import owned_notebook, owned_tag
+from app.contracts.taxonomy import ClassificationOut
 
 
 router = APIRouter(prefix="/v1", tags=["taxonomy"])
@@ -36,13 +38,6 @@ def item_json(item: Notebook | Tag, note_count: int | None = None) -> dict[str, 
     return value
 
 
-def owned(db: Db, model: type[Notebook] | type[Tag], item_id: uuid.UUID, user_id: uuid.UUID) -> Notebook | Tag:
-    item = db.scalar(select(model).where(model.id == item_id, model.user_id == user_id, model.deleted_at.is_(None)).with_for_update())
-    if item is None:
-        raise HTTPException(status_code=404, detail="分类不存在")
-    return item
-
-
 def save_name(db: Db, item: Notebook | Tag, action: AuditAction) -> dict[str, str]:
     try:
         db.flush()
@@ -54,7 +49,7 @@ def save_name(db: Db, item: Notebook | Tag, action: AuditAction) -> dict[str, st
     return item_json(item)
 
 
-@router.get("/notebooks")
+@router.get("/notebooks", response_model=list[ClassificationOut])
 def list_notebooks(db: Db, user_id: UserId) -> list[dict[str, str | int]]:
     rows = db.execute(
         select(Notebook, func.count(Note.id))
@@ -66,12 +61,12 @@ def list_notebooks(db: Db, user_id: UserId) -> list[dict[str, str | int]]:
     return [item_json(item, count) for item, count in rows]
 
 
-@router.get("/notebooks/{item_id}")
+@router.get("/notebooks/{item_id}", response_model=ClassificationOut)
 def get_notebook(item_id: uuid.UUID, db: Db, user_id: UserId) -> dict[str, str]:
-    return item_json(owned(db, Notebook, item_id, user_id))
+    return item_json(owned_notebook(db, item_id, user_id))
 
 
-@router.post("/notebooks", status_code=201)
+@router.post("/notebooks", status_code=201, response_model=ClassificationOut)
 def create_notebook(body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
     if len(body.name) > 120:
         raise HTTPException(status_code=422, detail="名称过长")
@@ -80,16 +75,16 @@ def create_notebook(body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
     return save_name(db, item, AuditAction.CREATE)
 
 
-@router.patch("/notebooks/{item_id}")
+@router.patch("/notebooks/{item_id}", response_model=ClassificationOut)
 def rename_notebook(item_id: uuid.UUID, body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
-    item = owned(db, Notebook, item_id, user_id)
+    item = owned_notebook(db, item_id, user_id)
     item.name = body.name
     return save_name(db, item, AuditAction.RENAME)
 
 
 @router.delete("/notebooks/{item_id}", status_code=204)
 def delete_notebook(item_id: uuid.UUID, db: Db, user_id: UserId) -> None:
-    item = owned(db, Notebook, item_id, user_id)
+    item = owned_notebook(db, item_id, user_id)
     item.deleted_at = datetime.now(timezone.utc)
     notes = db.scalars(select(Note).where(Note.user_id == user_id, Note.notebook_id == item_id, Note.deleted_at.is_(None)).order_by(Note.id).with_for_update()).all()
     for note in notes:
@@ -99,17 +94,17 @@ def delete_notebook(item_id: uuid.UUID, db: Db, user_id: UserId) -> None:
     db.commit()
 
 
-@router.get("/tags")
+@router.get("/tags", response_model=list[ClassificationOut])
 def list_tags(db: Db, user_id: UserId) -> list[dict[str, str]]:
     return [item_json(item) for item in db.scalars(select(Tag).where(Tag.user_id == user_id, Tag.deleted_at.is_(None)).order_by(Tag.name))]
 
 
-@router.get("/tags/{item_id}")
+@router.get("/tags/{item_id}", response_model=ClassificationOut)
 def get_tag(item_id: uuid.UUID, db: Db, user_id: UserId) -> dict[str, str]:
-    return item_json(owned(db, Tag, item_id, user_id))
+    return item_json(owned_tag(db, item_id, user_id))
 
 
-@router.post("/tags", status_code=201)
+@router.post("/tags", status_code=201, response_model=ClassificationOut)
 def create_tag(body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
     if len(body.name) > 80:
         raise HTTPException(status_code=422, detail="标签名称过长")
@@ -118,18 +113,18 @@ def create_tag(body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
     return save_name(db, item, AuditAction.CREATE)
 
 
-@router.patch("/tags/{item_id}")
+@router.patch("/tags/{item_id}", response_model=ClassificationOut)
 def rename_tag(item_id: uuid.UUID, body: NameInput, db: Db, user_id: UserId) -> dict[str, str]:
     if len(body.name) > 80:
         raise HTTPException(status_code=422, detail="标签名称过长")
-    item = owned(db, Tag, item_id, user_id)
+    item = owned_tag(db, item_id, user_id)
     item.name = body.name
     return save_name(db, item, AuditAction.RENAME)
 
 
 @router.delete("/tags/{item_id}", status_code=204)
 def delete_tag(item_id: uuid.UUID, db: Db, user_id: UserId) -> None:
-    item = owned(db, Tag, item_id, user_id)
+    item = owned_tag(db, item_id, user_id)
     item.deleted_at = datetime.now(timezone.utc)
     note_ids = select(NoteTag.note_id).where(NoteTag.user_id == user_id, NoteTag.tag_id == item_id)
     notes = db.scalars(select(Note).where(Note.user_id == user_id, Note.id.in_(note_ids), Note.deleted_at.is_(None)).order_by(Note.id).with_for_update()).all()

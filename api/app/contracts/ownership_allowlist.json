@@ -1,0 +1,9 @@
+{
+  "allowed": [
+    {
+      "file": "knowledge/upload_sessions.py",
+      "function": "cleanup_expired_sessions",
+      "reason": "系统级过期上传会话清理：按状态与过期时间全局扫描，无请求用户上下文（后台 GC，非用户数据读取）"
+    }
+  ]
+}

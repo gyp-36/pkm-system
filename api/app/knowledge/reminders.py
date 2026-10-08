@@ -14,7 +14,9 @@ from app.core.enums import AuditAction, AuditEntityType
 from app.core.lifecycle import record_event
 from app.core.models import DigestRun, Note, NoteReminder
 from app.knowledge.archive import _archive_json
-from app.knowledge.notes import note_json, owned_note
+from app.core.ownership import owned_note, owned_reminder
+from app.knowledge.notes import note_json
+from app.contracts.reminders import ReminderListOut, ReminderOut, WorkbenchOut
 
 
 router = APIRouter(prefix="/v1/reminders", tags=["reminders"])
@@ -63,17 +65,7 @@ def reminder_json(row: NoteReminder, note: Note | None) -> dict:
     }
 
 
-def owned_reminder(db: Db, user_id: uuid.UUID, reminder_id: uuid.UUID, *, lock: bool = False) -> NoteReminder:
-    query = select(NoteReminder).where(NoteReminder.id == reminder_id, NoteReminder.user_id == user_id, NoteReminder.status != "cancelled")
-    if lock:
-        query = query.with_for_update()
-    row = db.scalar(query)
-    if row is None:
-        raise HTTPException(status_code=404, detail="提醒不存在")
-    return row
-
-
-@note_router.post("/{note_id}/reminders", status_code=201)
+@note_router.post("/{note_id}/reminders", status_code=201, response_model=ReminderOut)
 def create_reminder(note_id: uuid.UUID, body: ReminderCreate, db: Db, user_id: UserId) -> dict:
     if body.note_id is not None and body.note_id != note_id:
         raise HTTPException(status_code=422, detail="笔记 ID 与路径不一致")
@@ -88,7 +80,7 @@ def create_reminder(note_id: uuid.UUID, body: ReminderCreate, db: Db, user_id: U
     return reminder_json(row, note)
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=ReminderOut)
 def create_standalone_or_linked_reminder(body: ReminderCreate, db: Db, user_id: UserId) -> dict:
     note = owned_note(db, body.note_id, user_id) if body.note_id is not None else None
     row = NoteReminder(user_id=user_id, note_id=note.id if note else None,
@@ -102,7 +94,7 @@ def create_standalone_or_linked_reminder(body: ReminderCreate, db: Db, user_id: 
     return reminder_json(row, note)
 
 
-@router.get("")
+@router.get("", response_model=ReminderListOut)
 def list_reminders(
     db: Db, user_id: UserId, status: Literal["open", "done", "all"] = "open",
     note_id: uuid.UUID | None = None, from_at: datetime | None = None, to_at: datetime | None = None,
@@ -130,9 +122,9 @@ def list_reminders(
     }
 
 
-@router.patch("/{reminder_id}")
+@router.patch("/{reminder_id}", response_model=ReminderOut)
 def update_reminder(reminder_id: uuid.UUID, body: ReminderUpdate, db: Db, user_id: UserId) -> dict:
-    row = owned_reminder(db, user_id, reminder_id, lock=True)
+    row = owned_reminder(db, reminder_id, user_id, lock=True)
     note = owned_note(db, row.note_id, user_id) if row.note_id is not None else None
     if body.text is not None:
         row.text = body.text.strip()
@@ -153,7 +145,7 @@ def update_reminder(reminder_id: uuid.UUID, body: ReminderUpdate, db: Db, user_i
 
 @router.delete("/{reminder_id}", status_code=204)
 def cancel_reminder(reminder_id: uuid.UUID, db: Db, user_id: UserId) -> None:
-    row = owned_reminder(db, user_id, reminder_id, lock=True)
+    row = owned_reminder(db, reminder_id, user_id, lock=True)
     row.status = "cancelled"
     row.updated_at = datetime.now(timezone.utc)
     record_event(db, user_id, AuditAction.DELETE, AuditEntityType.REMINDER, row.id,
@@ -161,7 +153,7 @@ def cancel_reminder(reminder_id: uuid.UUID, db: Db, user_id: UserId) -> None:
     db.commit()
 
 
-@workbench_router.get("")
+@workbench_router.get("", response_model=WorkbenchOut)
 def workbench_cards(db: Db, user_id: UserId) -> dict:
     now = datetime.now(timezone.utc)
     reminder_rows = db.execute(

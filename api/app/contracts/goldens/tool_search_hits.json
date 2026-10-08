@@ -1,0 +1,13 @@
+{
+  "keys": [
+    "evidence_kind",
+    "excerpt",
+    "note_ref",
+    "related_to",
+    "source_field",
+    "source_ref",
+    "title",
+    "untrusted"
+  ],
+  "nested": {}
+}

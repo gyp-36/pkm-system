@@ -20,6 +20,7 @@ from app.core.db import SessionLocal
 from app.core.enums import AuditAction, AuditEntityType
 from app.core.lifecycle import record_event, record_failure_isolated
 from app.core.models import Account, UserSession
+from app.contracts.auth import AccountOut
 
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -93,7 +94,7 @@ def account_json(account: Account) -> dict[str, str]:
     return {"id": str(account.id), "email": account.email}
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, response_model=AccountOut)
 def register(body: Credentials, response: Response, db: Db) -> dict[str, str]:
     email = str(body.email).lower()
     account = Account(email=email, password_hash=password_hasher.hash(body.password))
@@ -108,7 +109,7 @@ def register(body: Credentials, response: Response, db: Db) -> dict[str, str]:
     return account_json(account)
 
 
-@router.post("/login")
+@router.post("/login", response_model=AccountOut)
 def login(body: Credentials, response: Response, db: Db) -> dict[str, str]:
     account = db.scalar(select(Account).where(Account.email == str(body.email).lower(), Account.deleted_at.is_(None)))
     if account is None:
@@ -143,7 +144,7 @@ def logout(response: Response, db: Db, user_id: UserId, token: Annotated[str | N
     response.delete_cookie(key=COOKIE_NAME, path="/", samesite="lax")
 
 
-@router.get("/me")
+@router.get("/me", response_model=AccountOut)
 def me(db: Db, user_id: UserId) -> dict[str, str]:
     account = db.get(Account, user_id)
     if account is None or account.deleted_at is not None:

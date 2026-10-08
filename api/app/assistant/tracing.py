@@ -14,6 +14,7 @@ from sqlalchemy import func, select
 from app.auth.auth import Db, UserId
 from app.core.db import SessionLocal
 from app.core.models import AssistantTrace
+from app.contracts.tracing import TraceEnabledOut, TraceListOut, TraceOut
 
 
 log = logging.getLogger(__name__)
@@ -311,14 +312,14 @@ def trace_json(trace: AssistantTrace) -> dict:
     }
 
 
-@router.get("/enabled")
+@router.get("/enabled", response_model=TraceEnabledOut)
 def get_trace_view_status(_user_id: UserId) -> dict:
     return {"enabled": trace_view_enabled()}
 
 
-@router.get("")
+@router.get("", response_model=TraceListOut)
 def list_traces(
-    _user_id: UserId,
+    user_id: UserId,
     db: Db,
     entrypoint: str | None = Query(default=None, max_length=32),
     status: str | None = Query(default=None, max_length=16),
@@ -328,7 +329,7 @@ def list_traces(
     offset: int = Query(default=0, ge=0, le=100_000),
 ) -> dict:
     require_trace_view()
-    query = select(AssistantTrace)
+    query = select(AssistantTrace).where(AssistantTrace.user_id == user_id)
     if entrypoint:
         query = query.where(AssistantTrace.entrypoint == entrypoint)
     if status:
@@ -342,19 +343,25 @@ def list_traces(
     return {"items": [trace_json(item) for item in items], "total": total, "limit": limit, "offset": offset}
 
 
-@router.get("/by-message/{assistant_message_id}")
-def trace_for_message(assistant_message_id: uuid.UUID, _user_id: UserId, db: Db) -> dict:
+@router.get("/by-message/{assistant_message_id}", response_model=TraceOut)
+def trace_for_message(assistant_message_id: uuid.UUID, user_id: UserId, db: Db) -> dict:
     require_trace_view()
-    trace = db.scalar(select(AssistantTrace).where(AssistantTrace.assistant_message_id == assistant_message_id))
+    trace = db.scalar(select(AssistantTrace).where(
+        AssistantTrace.assistant_message_id == assistant_message_id,
+        AssistantTrace.user_id == user_id,
+    ))
     if trace is None:
         raise HTTPException(status_code=404, detail="调用链不存在")
     return trace_json(trace)
 
 
-@router.get("/{trace_id}")
-def get_trace(trace_id: uuid.UUID, _user_id: UserId, db: Db) -> dict:
+@router.get("/{trace_id}", response_model=TraceOut)
+def get_trace(trace_id: uuid.UUID, user_id: UserId, db: Db) -> dict:
     require_trace_view()
-    trace = db.get(AssistantTrace, trace_id)
+    trace = db.scalar(select(AssistantTrace).where(
+        AssistantTrace.id == trace_id,
+        AssistantTrace.user_id == user_id,
+    ))
     if trace is None:
         raise HTTPException(status_code=404, detail="调用链不存在")
     return trace_json(trace)

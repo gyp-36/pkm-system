@@ -36,7 +36,10 @@ from app.core.enums import AuditAction, AuditActor, AuditEntityType
 from app.core.lifecycle import record_event, record_revision
 from app.core.models import FileIngestJob, LinkDraft, Note, NoteFileVersion, NoteTextBlock, Notebook, NoteTag
 from app.core.rate_limit import check_limit
-from app.knowledge.notes import download_response, owned_note, queue_index, safe_filename, validate_categories
+from app.core.ownership import owned_note
+from app.contracts.notes import NoteOut
+from app.contracts.m3 import (ContentAnalysisOut, DuplicateCheckOut, EditorConfigOut, LinkDraftListOut, LinkDraftOut, LinkDraftRewriteOut, OnlyofficeCallbackOut)
+from app.knowledge.notes import download_response, queue_index, safe_filename, validate_categories
 from app.knowledge.file_types import ALLOWED_EXTENSIONS, IMAGE_EXTENSIONS, MIME_BY_EXT, PIL_FORMAT_BY_EXT
 from app.knowledge.text_safety import sanitize_extracted_text
 
@@ -311,7 +314,7 @@ def note_payload(db: Db, note: Note) -> dict:
     return data
 
 
-@router.post("/v1/notes/upload", status_code=201)
+@router.post("/v1/notes/upload", status_code=201, response_model=NoteOut)
 async def upload_note(db: Db, user_id: UserId, file: UploadFile = File(...), sha256: str = Form(...), notebook_id: uuid.UUID | None = None, convert_legacy: bool = False) -> dict:
     filename = Path(file.filename or "upload").name
     ext = Path(filename).suffix.lower().lstrip(".")
@@ -350,7 +353,7 @@ async def upload_note(db: Db, user_id: UserId, file: UploadFile = File(...), sha
     return note_payload(db, note)
 
 
-@router.post("/v1/notes/file-duplicate-check")
+@router.post("/v1/notes/file-duplicate-check", response_model=DuplicateCheckOut)
 def check_file_duplicate(body: FileHashCheck, db: Db, user_id: UserId) -> dict:
     duplicate = find_duplicate_file(db, user_id, body.sha256.lower())
     if duplicate is None:
@@ -384,7 +387,7 @@ def get_note_file(note_id: uuid.UUID, db: Db, user_id: UserId, version: int | No
     return Response(content, media_type=media_type, headers={"Content-Disposition": file_content_disposition(disposition, row.filename)})
 
 
-@router.put("/v1/notes/{note_id}/file")
+@router.put("/v1/notes/{note_id}/file", response_model=NoteOut)
 async def replace_note_file(note_id: uuid.UUID, db: Db, user_id: UserId, file: UploadFile = File(...), version: int = Query(ge=1)) -> dict:
     note = owned_note(db, note_id, user_id, lock=True)
     if note.version != version:
@@ -475,7 +478,7 @@ def get_file_for_editor(storage_key: str, token: str, db: Db) -> Response:
     raise HTTPException(status_code=404, detail="文件不存在")
 
 
-@router.get("/v1/notes/{note_id}/editor-config")
+@router.get("/v1/notes/{note_id}/editor-config", response_model=EditorConfigOut)
 def office_editor_config(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     note = owned_note(db, note_id, user_id)
     row = _latest_version(db, note)
@@ -515,7 +518,7 @@ def office_editor_config(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return {"available": True, "api_url": f"{office_url}/web-apps/apps/api/documents/api.js", "token": editor_token, **editor_config}
 
 
-@router.post("/v1/integrations/onlyoffice/callback/{note_id}")
+@router.post("/v1/integrations/onlyoffice/callback/{note_id}", response_model=OnlyofficeCallbackOut)
 async def onlyoffice_callback(
     note_id: uuid.UUID,
     request: Request,
@@ -917,7 +920,7 @@ def draft_json(draft: LinkDraft) -> dict:
     return {"id": str(draft.id), "source_url": draft.source_url, "title": draft.title, "snapshot_text": draft.snapshot_text, "body_md": draft.body_md, "fetch_status": draft.fetch_status, "fetch_error": draft.fetch_error, "status": draft.status, "notebook_id": str(draft.notebook_id) if draft.notebook_id else None, "created_at": draft.created_at.isoformat(), "updated_at": draft.updated_at.isoformat()}
 
 
-@router.post("/v1/link-drafts", status_code=201)
+@router.post("/v1/link-drafts", status_code=201, response_model=LinkDraftOut)
 def create_link_draft(body: LinkDraftCreate, db: Db, user_id: UserId) -> dict:
     url = canonicalize_source_url(str(body.url))
     _resolve_public_addresses(url)
@@ -960,13 +963,13 @@ def create_link_draft(body: LinkDraftCreate, db: Db, user_id: UserId) -> dict:
     return draft_json(draft)
 
 
-@router.get("/v1/link-drafts")
+@router.get("/v1/link-drafts", response_model=LinkDraftListOut)
 def list_link_drafts(db: Db, user_id: UserId) -> dict:
     rows = db.scalars(select(LinkDraft).where(LinkDraft.user_id == user_id, LinkDraft.status == "draft").order_by(LinkDraft.updated_at.desc())).all()
     return {"items": [draft_json(row) for row in rows]}
 
 
-@router.get("/v1/link-drafts/{draft_id}")
+@router.get("/v1/link-drafts/{draft_id}", response_model=LinkDraftOut)
 def get_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     draft = db.scalar(select(LinkDraft).where(LinkDraft.id == draft_id, LinkDraft.user_id == user_id, LinkDraft.status == "draft"))
     if draft is None:
@@ -974,7 +977,7 @@ def get_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return draft_json(draft)
 
 
-@router.patch("/v1/link-drafts/{draft_id}")
+@router.patch("/v1/link-drafts/{draft_id}", response_model=LinkDraftOut)
 def update_link_draft(draft_id: uuid.UUID, body: LinkDraftUpdate, db: Db, user_id: UserId) -> dict:
     draft = db.scalar(select(LinkDraft).where(LinkDraft.id == draft_id, LinkDraft.user_id == user_id, LinkDraft.status == "draft").with_for_update())
     if draft is None:
@@ -1002,7 +1005,7 @@ def update_link_draft(draft_id: uuid.UUID, body: LinkDraftUpdate, db: Db, user_i
     return draft_json(draft)
 
 
-@router.post("/v1/link-drafts/{draft_id}/rewrite")
+@router.post("/v1/link-drafts/{draft_id}/rewrite", response_model=LinkDraftRewriteOut)
 def rewrite_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     from app.assistant.model_connection import chat_model, decrypt_key, require_connection
     draft = db.scalar(select(LinkDraft).where(LinkDraft.id == draft_id, LinkDraft.user_id == user_id, LinkDraft.status == "draft"))
@@ -1025,7 +1028,7 @@ def rewrite_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return {**draft_json(draft), "rewrite_suggestion": suggestion}
 
 
-@router.post("/v1/link-drafts/{draft_id}/analyze")
+@router.post("/v1/link-drafts/{draft_id}/analyze", response_model=ContentAnalysisOut)
 def analyze_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     from app.assistant.model_connection import chat_model, decrypt_key, require_connection
 
@@ -1044,7 +1047,7 @@ def analyze_link_draft(draft_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     return parsed.model_dump()
 
 
-@router.post("/v1/link-drafts/{draft_id}/publish", status_code=201)
+@router.post("/v1/link-drafts/{draft_id}/publish", status_code=201, response_model=NoteOut)
 def publish_link_draft(draft_id: uuid.UUID, body: LinkDraftPublish, db: Db, user_id: UserId) -> dict:
     draft = db.scalar(select(LinkDraft).where(LinkDraft.id == draft_id, LinkDraft.user_id == user_id, LinkDraft.status == "draft").with_for_update())
     if draft is None:

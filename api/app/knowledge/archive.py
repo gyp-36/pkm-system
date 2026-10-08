@@ -34,6 +34,7 @@ from app.core.models import (
     Tag,
 )
 from app.core import object_storage
+from app.contracts.archive import ArchiveListOut, ArchivePurgeOut, ArchiveRestoreOut
 from app.knowledge.file_types import IMAGE_EXTENSIONS
 
 
@@ -76,7 +77,7 @@ def _archive_json(db: Session, note: Note) -> dict:
     }
 
 
-@router.get("")
+@router.get("", response_model=ArchiveListOut)
 def list_archive(
     db: Db,
     user_id: UserId,
@@ -105,7 +106,7 @@ def list_archive(
     }
 
 
-@router.post("/{note_id}/restore")
+@router.post("/{note_id}/restore", response_model=ArchiveRestoreOut)
 def restore_archived_note(note_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     note = db.scalar(select(Note).where(
         Note.id == note_id,
@@ -244,7 +245,7 @@ def purge_one_archived_note(note_id: uuid.UUID, db: Db, user_id: UserId) -> None
         raise HTTPException(status_code=502, detail=str(exc)) from None
 
 
-@router.post("/purge")
+@router.post("/purge", response_model=ArchivePurgeOut)
 def purge_selected_archived_notes(body: PurgeRequest, db: Db, user_id: UserId) -> dict:
     purged: list[str] = []
     failed: list[dict[str, str]] = []

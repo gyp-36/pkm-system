@@ -1,0 +1,16 @@
+{
+  "keys": [
+    "candidates",
+    "status",
+    "truncated"
+  ],
+  "nested": {
+    "candidates": [
+      "index",
+      "note_ref",
+      "notebook",
+      "title",
+      "updated_at"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "keys": [
+    "author",
+    "error_code",
+    "error_message",
+    "extraction_method",
+    "fetched_at",
+    "final_url",
+    "markdown",
+    "metadata",
+    "published_at",
+    "source_url",
+    "status",
+    "title",
+    "untrusted"
+  ],
+  "nested": {}
+}

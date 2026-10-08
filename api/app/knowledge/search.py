@@ -11,6 +11,7 @@ from app.auth.auth import Db, UserId
 from app.core.enums import ChunkSource
 from app.knowledge.embeddings import embed
 from app.core.models import Note, NoteChunk, NoteTag, NoteTextBlock
+from app.contracts.search import SearchResponseOut
 
 
 router = APIRouter(prefix="/v1", tags=["search"])
@@ -243,7 +244,7 @@ def search_notes(
     return {"items": items, "semantic_status": semantic_status}
 
 
-@router.get("/search")
+@router.get("/search", response_model=SearchResponseOut)
 def search(
     db: Db,
     user_id: UserId,
