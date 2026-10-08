@@ -1,8 +1,0 @@
-{
-  "api_compileall": 0,
-  "git_diff_check": 0,
-  "web_build_exit_code": 0,
-  "web_bundle": "web/dist/assets/index-4lKc_EU3.js",
-  "web_css": "web/dist/assets/index-Cb4GAqep.css",
-  "frontend_source_changed_by_this_fix": false
-}

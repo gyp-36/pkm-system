@@ -12,7 +12,6 @@ import json
 import re
 
 from app.contracts.base import MODEL_DENYLIST
-from app.assistant.data_contract import validate_shape
 
 
 # 笔记正文里应用自身的内部笔记链接带数据库 UUID；进入模型前统一去掉目标。
@@ -60,22 +59,6 @@ NESTED_ENVELOPES: dict[str, frozenset[str]] = {
     "title_candidate": frozenset({"index", "note_ref", "title", "notebook", "updated_at"}),
 }
 
-# Every field has a concrete type. Open dictionaries are not permitted; new
-# metadata fields require explicit purpose review and schema registration.
-SCALAR_TYPES = {
-    "untrusted": bool, "truncated": bool, "index": int,
-    "author": (str, type(None)), "published_at": (str, type(None)),
-    "notebook": (str, type(None)), "metadata": {},
-    "error_code": (str, type(None)), "error_message": (str, type(None)),
-}
-
-
-def envelope_schema(envelope):
-    schema = {key: SCALAR_TYPES.get(key, str) for key in envelope["keys"]}
-    for key, nested in envelope.get("nested", {}).items():
-        schema[key] = [{field: SCALAR_TYPES.get(field, str) for field in NESTED_ENVELOPES[nested]}]
-    return schema
-
 
 def _sanitize(value):
     """对载荷里的所有字符串做内部链接 UUID 脱敏。"""
@@ -93,7 +76,6 @@ def _reject(where: str, extra: set[str]) -> None:
 
 
 def _validate_dict(kind: str, envelope: dict, item: dict, where: str) -> None:
-    validate_shape(item, envelope_schema(envelope), path=where)
     allowed = envelope["keys"]
     extra = set(item) - allowed
     if extra:

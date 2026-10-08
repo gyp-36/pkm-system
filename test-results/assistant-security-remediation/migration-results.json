@@ -1,9 +1,0 @@
-{
-  "database": "assistant_security",
-  "upgrade_to": "0023_assistant_operations",
-  "downgrade_to": "0022_audit_observability",
-  "reupgrade": "passed",
-  "retained_operation_records_before": 89,
-  "records_survive": true,
-  "personal_db_migrated": false
-}

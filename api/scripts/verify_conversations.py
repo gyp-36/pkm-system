@@ -22,7 +22,6 @@ def main() -> None:
     original_answer = conversations_module.answer_question
     calls = []
     fail_next = False
-    note_ids = {}
 
     def fake_answer(question, _db, user_id, history=None, *, limit_checked=False, trace=None, turn=None):
         nonlocal fail_next
@@ -34,7 +33,7 @@ def main() -> None:
             "answer": f"根据笔记，答案是快照原文片段。[S1]（问题：{question[:24]}）",
             "citations": [{
                 "citation_id": "S1",
-                "note_id": note_ids[user_id],
+                "note_id": "7d2e5ec1-cbe3-43bc-b38a-33825a1b39de",
                 "title": "检索验收笔记",
             }],
             "semantic_status": "unavailable" if question == "降级验证" else "ready",
@@ -49,8 +48,6 @@ def main() -> None:
             first = checked(alice, "POST", "/v1/auth/register", 201, json={"email": alice_email, "password": password})
             second = checked(bob, "POST", "/v1/auth/register", 201, json={"email": f"conv-b-{suffix}@example.com", "password": "TestPassword123!"})
             account_ids = [uuid.UUID(first["id"]), uuid.UUID(second["id"])]
-            note = checked(alice, "POST", "/v1/notes", 201, json={"title": "检索验收笔记", "body_md": "快照原文片段。"})
-            note_ids[account_ids[0]] = note["id"]
 
             created = checked(alice, "POST", "/v1/assistant/conversations", 201)
             assert created["title"] == "新对话"

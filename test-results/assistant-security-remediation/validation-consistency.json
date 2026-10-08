@@ -1,9 +1,0 @@
-{
-  "source_files": 108,
-  "source_mismatches": [],
-  "asset_mismatches": [],
-  "scenario_executions": 414,
-  "execution_fingerprint_mismatches": [],
-  "isolated_server_startup_matches_source": true,
-  "personal_service_deployed": false
-}

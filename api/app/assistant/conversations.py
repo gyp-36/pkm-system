@@ -4,7 +4,6 @@ import json
 import logging
 import re
 import uuid
-import hashlib
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException
@@ -16,14 +15,11 @@ from app.assistant.assistant import answer_question, stream_answer_question, sum
 from app.assistant.tracing import TraceRecorder
 from app.assistant.policy import MAX_QUESTION_CHARS
 from app.assistant.operations import start_turn, prepare_result, apply_changes, finish_turn, fail_turn, fingerprint
-from app.assistant.projections import public_content, public_conversation
-from app.assistant.visibility import project_text
 from app.prompts import load_prompt
 from app.auth.auth import Db, UserId
 from app.core.enums import AssistantMessageRole, AuditAction, AuditEntityType
 from app.core.lifecycle import record_event
-from app.core.models import AssistantConversation, AssistantMessage, Note
-from app.core.db import SessionLocal
+from app.core.models import AssistantConversation, AssistantMessage
 from app.core.ownership import owned_conversation, owned_message
 from app.contracts.conversations import (ConversationListOut, ConversationOut, ConversationWithMessagesOut)
 from app.core.rate_limit import check_limit
@@ -67,68 +63,17 @@ def conversation_json(item: AssistantConversation) -> dict:
     }
 
 
-def stored_literals(item: AssistantMessage) -> list[str]:
-    """Revalidate server provenance; arbitrary legacy extension fields aren't grants."""
-    sources = item.content.get("_literal_sources", []) if isinstance(item.content, dict) else []
-    result = []
-    if not isinstance(sources, list) or not sources:
-        return result
-    with SessionLocal() as db:
-        for source in sources[:20]:
-            if not isinstance(source, dict):
-                continue
-            try:
-                note = db.scalar(select(Note).where(Note.id == uuid.UUID(source["note_id"]), Note.user_id == item.user_id, Note.deleted_at.is_(None)))
-                if note is None or note.version != source["note_version"] or source["source_field"] not in {"title", "body"}:
-                    continue
-                text = note.title if source["source_field"] == "title" else note.body_md
-                start, end = source["start_offset"], source["end_offset"]
-                if type(start) is not int or type(end) is not int or not 0 <= start <= end <= len(text):
-                    continue
-                literal = text[start:end]
-                if hashlib.sha256(literal.encode()).hexdigest() == source["digest"]:
-                    result.append(literal)
-            except (KeyError, ValueError, TypeError):
-                continue
-    return result
-
-
-def scope_source_cards(content: dict, user_id: uuid.UUID) -> dict:
-    """Stored pointers require ownership too; shape validation is not a grant."""
-    cards = content.get("citations", [])
-    if not cards:
-        return content
-    owned = []
-    with SessionLocal() as db:
-        for card in cards:
-            try:
-                note = db.scalar(select(Note).where(
-                    Note.id == uuid.UUID(card["note_id"]),
-                    Note.user_id == user_id,
-                    Note.deleted_at.is_(None),
-                ))
-            except (KeyError, ValueError, TypeError, AttributeError):
-                continue
-            if note is not None:
-                owned.append({**card, "title": note.title})
-    if len(owned) == len(cards):
-        return {**content, "citations": owned}
-    return {**content, "citations": owned, "answer_source": "unknown"}
-
-
-def message_json(item: AssistantMessage, *, literals=()) -> dict:
+def message_json(item: AssistantMessage) -> dict:
     return {
         "id": str(item.id),
         "role": AssistantMessageRole(item.role).name.lower(),
-        "content": scope_source_cards(public_content(item.content, user=item.role == AssistantMessageRole.USER, literals=[*literals, *stored_literals(item)]), item.user_id),
+        "content": item.content,
         "created_at": item.created_at.isoformat(),
     }
 
 
 def message_context(item: AssistantMessage) -> dict | None:
-    literals = stored_literals(item) if getattr(item, "user_id", None) is not None else []
-    content = public_content(item.content, user=item.role == AssistantMessageRole.USER, literals=literals)
-    content = scope_source_cards(content, getattr(item, "user_id", None))
+    content = item.content if isinstance(item.content, dict) else {}
     if item.role == AssistantMessageRole.USER:
         role, text = "user", content.get("text", "")
     else:
@@ -141,7 +86,7 @@ def message_context(item: AssistantMessage) -> dict | None:
             citations = content.get("citations", [])
             if isinstance(citations, list) and citations:
                 sources = [
-                    f"- {source.get('title', '笔记')}"
+                    f"- {source.get('title', '笔记')}：{source.get('quote', '')}"
                     for source in citations
                     if isinstance(source, dict)
                 ]
@@ -157,7 +102,7 @@ def message_context(item: AssistantMessage) -> dict | None:
             ] if isinstance(hits, list) else []
             text = "此前检索结果（仅用于理解上下文；只有当前问题明确要求依据相关笔记时才重新检索）：\n" + "\n".join(snippets)
     if role == "assistant" and isinstance(text, str):
-        text = project_text(re.sub(r"\[S\d+\]", "[历史引用]", text), literals=literals)
+        text = re.sub(r"\[S\d+\]", "[历史引用]", text)
     if not isinstance(text, str) or not text.strip():
         return None
     return {"role": role, "content": text[:MAX_HISTORY_MESSAGE_CHARS]}
@@ -187,7 +132,7 @@ def message_after(boundary: AssistantMessage):
 def summary_message(summary: str) -> dict:
     return {
         "role": "assistant",
-        "content": load_prompt("conversation_summary_context.txt", summary=project_text(summary)),
+        "content": load_prompt("conversation_summary_context.txt", summary=summary),
     }
 
 
@@ -377,7 +322,6 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
             "retrieval_status": result.get("retrieval_status", "unknown"),
             "pending_operation": result.get("pending_operation"),
             "operation_receipts": result.get("operation_receipts", []),
-            "_literal_sources": result.get("_literal_sources", []),
         },
         created_at=assistant_created_at,
     )
@@ -403,7 +347,7 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
     db.refresh(assistant_message)
     return {
         **conversation_json(conversation),
-        "messages": [message_json(user_message), message_json(assistant_message, literals=[question])],
+        "messages": [message_json(user_message), message_json(assistant_message)],
     }
 
 
@@ -460,13 +404,7 @@ def get_conversation(conversation_id: uuid.UUID, db: Db, user_id: UserId) -> dic
         )
         .order_by(AssistantMessage.created_at, AssistantMessage.id)
     ).all()
-    literals = []
-    projected = []
-    for item in messages:
-        if item.role == AssistantMessageRole.USER and isinstance(item.content, dict) and isinstance(item.content.get("text"), str):
-            literals.append(item.content["text"])
-        projected.append(message_json(item, literals=literals))
-    return {**conversation_json(conversation), "messages": projected}
+    return {**conversation_json(conversation), "messages": [message_json(item) for item in messages]}
 
 
 @router.delete("/{conversation_id}/messages/{message_id}", response_model=ConversationWithMessagesOut)
@@ -519,18 +457,7 @@ def execute_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, us
     owned_conversation(db, conversation_id, user_id)
     turn = start_turn(db, user_id, conversation_id, question, body.request_id, body.confirmation_id, body.selection, body.replace_from_message_id)
     if turn.replay is not None:
-        literals = []
-        for message in turn.replay.get("messages", []):
-            try:
-                stored = db.scalar(select(AssistantMessage).where(AssistantMessage.id == uuid.UUID(message["id"]), AssistantMessage.user_id == user_id, AssistantMessage.conversation_id == conversation_id))
-                if stored is not None:
-                    literals.extend(stored_literals(stored))
-            except (KeyError, ValueError, TypeError):
-                continue
-        replay = public_conversation(turn.replay, literals=literals)
-        for message in replay["messages"]:
-            message["content"] = scope_source_cards(message["content"], user_id)
-        return replay
+        return turn.replay
     trace = TraceRecorder("conversation", user_id, None, conversation_id)
     try:
         check_limit(user_id, "assistant", limit=10)

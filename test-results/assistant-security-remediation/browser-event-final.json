@@ -1,7 +1,0 @@
-{
-  "fixture": "S112",
-  "clicked": true,
-  "alert_present": false,
-  "source": "current production build with raw HTML escaped before parsing",
-  "observed_at": "2026-10-07T02:19:10.872Z"
-}

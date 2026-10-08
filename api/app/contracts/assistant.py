@@ -5,49 +5,6 @@ CitationOut 只暴露浏览器真正需要的字段（打开来源笔记）：�
 """
 
 from app.contracts.base import ContractModel
-from typing import Literal
-
-
-class OperationReceiptOut(ContractModel):
-    action: Literal["created", "updated", "already_exists"]
-    title: str
-
-
-class SelectionCandidateOut(ContractModel):
-    index: int
-    title: str
-    notebook: str | None = None
-
-
-class TitleFieldsOut(ContractModel):
-    title: str
-
-
-class BodyFieldsOut(ContractModel):
-    body_md: str
-
-
-class NoteFieldsOut(ContractModel):
-    title: str
-    body_md: str
-
-
-class ChangePreviewOut(ContractModel):
-    title: str
-    before: NoteFieldsOut
-    after: TitleFieldsOut | BodyFieldsOut | NoteFieldsOut
-
-
-class PendingSelectionOut(ContractModel):
-    operation_id: str
-    kind: Literal["selection"]
-    candidates: list[SelectionCandidateOut]
-
-
-class PendingConfirmationOut(ContractModel):
-    operation_id: str
-    kind: Literal["confirmation"]
-    changes: list[ChangePreviewOut]
 
 
 class CitationOut(ContractModel):
@@ -62,8 +19,8 @@ class AnswerOut(ContractModel):
     semantic_status: str
     answer_source: str
     retrieval_status: str = "unknown"
-    pending_operation: PendingSelectionOut | PendingConfirmationOut | None = None
-    operation_receipts: list[OperationReceiptOut] = []
+    pending_operation: dict | None = None
+    operation_receipts: list[dict] = []
 
 
 class AnalyzeOut(ContractModel):
