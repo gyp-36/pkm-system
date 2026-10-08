@@ -33,6 +33,8 @@ from app.assistant.tool_contract import NOTE_LINK_TARGET, tool_result
 from app.assistant.policy import MAX_QUESTION_CHARS, MAX_CONTEXT_BYTES, allowed_urls, canonical_url, check_context, parse_intent, needs_note_lookup, user_message
 from app.assistant.operations import Turn, start_turn, prepare_result, apply_changes, finish_turn, fail_turn
 from app.assistant.response_guard import guard_answer
+from app.assistant.visibility import project_text, project_history
+from app.assistant.projections import public_content
 from app.contracts.assistant import AnalyzeOut, AnswerOut, ClassifyOut
 from app.prompts import load_prompt
 
@@ -231,17 +233,10 @@ class Evidence:
         )
 
     def redact(self, text: str) -> str:
-        """Replace internal note UUIDs leaked into free text with their title."""
-        if not text:
-            return text
-        text = NOTE_LINK_TARGET.sub(r"\1", text)
-        for note_id in list(self._note_ref_by_id):
-            if note_id.casefold() in self.question.casefold():
-                continue
-            title = self.title_for_note(note_id)
-            replacement = f"《{title}》" if title else "[笔记]"
-            text = re.sub(re.escape(note_id), replacement, text, flags=re.IGNORECASE)
-        return text
+        """Use server provenance, never the verifier's self-reported basis."""
+        literals = [self.question, *(item["quote"] for item in self.items.values()),
+                    *(item["body_md"] for item in self.read_snapshots.values())]
+        return project_text(NOTE_LINK_TARGET.sub(r"\1", text), identities=self._note_ref_by_id, literals=literals)
 
     def search(self, question: str) -> str | list:
         """Return model-facing search payload (a list) or a plain message string.
@@ -449,6 +444,16 @@ class Evidence:
         answer = MARKER.sub("", answer)
         answer = self.redact(answer)
         return answer, serialize_citations(used)
+
+    def literal_sources(self) -> list[dict]:
+        """Server-only provenance for documentary text on later reads/replays.
+
+        Never supplied by the model or exposed in AnswerOut. Revalidate the
+        actor, version and excerpt hash before using these as literal data.
+        """
+        import hashlib
+        return [{key: item[key] for key in ("note_id", "note_version", "source_field", "start_offset", "end_offset")} |
+                {"digest": hashlib.sha256(item["quote"].encode()).hexdigest()} for item in self.items.values()]
 
 
 def build_agent(
@@ -721,8 +726,8 @@ def summarize_conversation_context(
     key, model_name = decrypt_key(row), row.model_name
     db.rollback()
     payload = {
-        "existing_summary": existing_summary or "",
-        "messages": messages,
+        "existing_summary": project_text(existing_summary or ""),
+        "messages": project_history(messages),
     }
     try:
         result = chat_model(key, model_name, max_tokens=320).invoke([
@@ -732,7 +737,7 @@ def summarize_conversation_context(
         content = result.content
         if not isinstance(content, str):
             return None
-        summary = MARKER.sub("[历史引用]", content.strip())
+        summary = project_text(MARKER.sub("[历史引用]", content.strip()))
         return summary[:1600] if summary else ""
     except Exception as exc:
         log.warning("assistant conversation summarization failed: %s", type(exc).__name__)
@@ -754,7 +759,7 @@ def parse_json_response(content: str) -> dict:
 
 
 def question_messages(question: str, history: list[dict] | None, evidence: Evidence, trace=None) -> list[dict]:
-    messages = [*(history or []), {"role": "user", "content": user_message(question)}]
+    messages = [*project_history(history), {"role": "user", "content": user_message(question)}]
     check_context(answer_system_prompt(), messages)
     # Explicit factual note requests always acquire evidence, even if the model
     # is tempted to reject an incorrect premise before checking the saved facts.
@@ -795,6 +800,18 @@ def answer_question(
     if not limit_checked:
         check_limit(user_id, "assistant", limit=10)
     db.rollback()
+    # An exact literal create needs no creative model decision. Execute the
+    # already parsed capability through the same staging/transaction boundary.
+    if turn is not None and turn.intent.action == "create" and turn.intent.create_title and turn.intent.create_body is not None and not allowed_urls(question, history) and not re.search(r"笔记本|来源链接", question.split("正文", 1)[0]):
+        title, body = turn.intent.create_title, turn.intent.create_body
+        if not title.strip() or not body.strip() or len(title) > 240 or len(body) > 100_000:
+            raise HTTPException(422, "新建笔记标题或正文无效，未保存")
+        rejected = turn.stage_create(title, body, None, None, copies=turn.intent.count)
+        if rejected:
+            raise HTTPException(403, rejected)
+        if trace is not None:
+            trace.add_step("tool", "server_stage_literal_create", summary={"count": turn.intent.count})
+        return {"answer": "本轮提议已准备。", "citations": [], "semantic_status": "not_requested", "answer_source": "model_knowledge", "retrieval_status": "not_requested"}
     model = chat_model(key, model_name)
     evidence = Evidence(user_id, max_evidence_items=MAX_RAG_EVIDENCE, turn=turn, question=question, urls=allowed_urls(question, history))
     create_requested = turn is not None and turn.intent.action == "create"
@@ -824,6 +841,7 @@ def answer_question(
         "semantic_status": evidence.semantic_status,
         "answer_source": answer_source(answer, citations, evidence),
         "retrieval_status": evidence.retrieval_status,
+        "_literal_sources": evidence.literal_sources(),
     }
 
 
@@ -962,15 +980,18 @@ def ask(body: QuestionInput, db: Db, user_id: UserId) -> dict:
         raise HTTPException(422, "问题不能为空")
     turn = start_turn(db, user_id, None, question, body.request_id, body.confirmation_id, body.selection)
     if turn.replay is not None:
-        return turn.replay
+        return public_content(turn.replay, literals=[question])
     trace = TraceRecorder("ask", user_id, None)
     try:
         raw = {"answer": "确认差异", "citations": [], "semantic_status": "not_requested", "answer_source": "model_knowledge", "retrieval_status": "not_requested"} if turn.confirmed else answer_question(question, db, user_id, trace=trace, turn=turn)
         result = prepare_result(turn, raw)
         apply_changes(db, turn, result)
+        # The receipt remains server-only; the public response always uses the
+        # current explicit contract, including on idempotent replay.
+        public = public_content(result, literals=[question])
         finish_turn(db, turn, result)
         trace.finish("success")
-        return result
+        return public
     except Exception as exc:
         fail_turn(db, turn)
         trace.finish("error", type(exc).__name__)
