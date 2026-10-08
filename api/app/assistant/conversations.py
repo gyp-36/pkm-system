@@ -13,11 +13,15 @@ from sqlalchemy import and_, delete, func, or_, select
 
 from app.assistant.assistant import answer_question, stream_answer_question, summarize_conversation_context
 from app.assistant.tracing import TraceRecorder
+from app.assistant.policy import MAX_QUESTION_CHARS
+from app.assistant.operations import start_turn, prepare_result, apply_changes, finish_turn, fail_turn, fingerprint
 from app.prompts import load_prompt
 from app.auth.auth import Db, UserId
 from app.core.enums import AssistantMessageRole, AuditAction, AuditEntityType
 from app.core.lifecycle import record_event
 from app.core.models import AssistantConversation, AssistantMessage
+from app.core.ownership import owned_conversation, owned_message
+from app.contracts.conversations import (ConversationListOut, ConversationOut, ConversationWithMessagesOut)
 from app.core.rate_limit import check_limit
 
 
@@ -31,7 +35,10 @@ SUMMARY_FALLBACK_MESSAGES = 16
 
 
 class QuestionInput(BaseModel):
-    question: str = Field(min_length=1)
+    question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
+    request_id: uuid.UUID | None = None
+    confirmation_id: uuid.UUID | None = None
+    selection: int | None = Field(default=None, ge=1, le=20)
     replace_from_message_id: uuid.UUID | None = None
 
 
@@ -63,19 +70,6 @@ def message_json(item: AssistantMessage) -> dict:
         "content": item.content,
         "created_at": item.created_at.isoformat(),
     }
-
-
-def require_conversation(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID) -> AssistantConversation:
-    conversation = db.scalar(
-        select(AssistantConversation).where(
-            AssistantConversation.id == conversation_id,
-            AssistantConversation.user_id == user_id,
-            AssistantConversation.deleted_at.is_(None),
-        )
-    )
-    if conversation is None:
-        raise HTTPException(status_code=404, detail="对话不存在")
-    return conversation
 
 
 def message_context(item: AssistantMessage) -> dict | None:
@@ -114,17 +108,6 @@ def message_context(item: AssistantMessage) -> dict | None:
     return {"role": role, "content": text[:MAX_HISTORY_MESSAGE_CHARS]}
 
 
-def require_message(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID, message_id: uuid.UUID) -> AssistantMessage:
-    message = db.scalar(select(AssistantMessage).where(
-        AssistantMessage.id == message_id,
-        AssistantMessage.conversation_id == conversation_id,
-        AssistantMessage.user_id == user_id,
-    ))
-    if message is None:
-        raise HTTPException(status_code=404, detail="消息不存在")
-    return message
-
-
 def from_message_onward(message: AssistantMessage):
     return or_(
         AssistantMessage.created_at > message.created_at,
@@ -154,10 +137,10 @@ def summary_message(summary: str) -> dict:
 
 
 def load_question_history(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID, replace_from_message_id: uuid.UUID | None = None) -> list[dict]:
-    conversation = require_conversation(db, conversation_id, user_id)
+    conversation = owned_conversation(db, conversation_id, user_id)
     cutoff = None
     if replace_from_message_id is not None:
-        target = require_message(db, conversation_id, user_id, replace_from_message_id)
+        target = owned_message(db, conversation_id, user_id, replace_from_message_id)
         if target.role != AssistantMessageRole.USER:
             raise HTTPException(status_code=422, detail="只能从用户问题重新提问")
         cutoff = target
@@ -266,7 +249,7 @@ def load_question_history(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID
     return history
 
 
-def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID, question: str, result: dict, replace_from_message_id: uuid.UUID | None = None) -> dict:
+def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID, question: str, result: dict, replace_from_message_id: uuid.UUID | None = None, *, commit: bool = True) -> dict:
     conversation = db.scalar(
         select(AssistantConversation)
         .where(
@@ -281,7 +264,7 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
         raise HTTPException(status_code=404, detail="对话不存在")
 
     if replace_from_message_id is not None:
-        target = require_message(db, conversation_id, user_id, replace_from_message_id)
+        target = owned_message(db, conversation_id, user_id, replace_from_message_id)
         if target.role != AssistantMessageRole.USER:
             db.rollback()
             raise HTTPException(status_code=422, detail="只能从用户问题重新提问")
@@ -335,7 +318,10 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
             "answer": result["answer"],
             "citations": result["citations"],
             "semantic_status": result["semantic_status"],
-            "answer_source": result.get("answer_source", "knowledge_base"),
+            "answer_source": result.get("answer_source", "unknown"),
+            "retrieval_status": result.get("retrieval_status", "unknown"),
+            "pending_operation": result.get("pending_operation"),
+            "operation_receipts": result.get("operation_receipts", []),
         },
         created_at=assistant_created_at,
     )
@@ -352,7 +338,10 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
             "answer_source": result.get("answer_source", "knowledge_base"),
         },
     )
-    db.commit()
+    if commit:
+        db.commit()
+    else:
+        db.flush()
     db.refresh(conversation)
     db.refresh(user_message)
     db.refresh(assistant_message)
@@ -362,7 +351,7 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
     }
 
 
-@router.get("")
+@router.get("", response_model=ConversationListOut)
 def list_conversations(db: Db, user_id: UserId) -> dict:
     items = db.scalars(
         select(AssistantConversation)
@@ -372,7 +361,7 @@ def list_conversations(db: Db, user_id: UserId) -> dict:
     return {"items": [conversation_json(item) for item in items]}
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=ConversationOut)
 def create_conversation(db: Db, user_id: UserId) -> dict:
     item = AssistantConversation(user_id=user_id, title="新对话")
     db.add(item)
@@ -383,9 +372,9 @@ def create_conversation(db: Db, user_id: UserId) -> dict:
     return conversation_json(item)
 
 
-@router.patch("/{conversation_id}")
+@router.patch("/{conversation_id}", response_model=ConversationOut)
 def rename_conversation(conversation_id: uuid.UUID, body: ConversationTitleInput, db: Db, user_id: UserId) -> dict:
-    conversation = require_conversation(db, conversation_id, user_id)
+    conversation = owned_conversation(db, conversation_id, user_id)
     conversation.title = body.title
     conversation.updated_at = datetime.now(timezone.utc)
     record_event(db, user_id, AuditAction.RENAME, AuditEntityType.CONVERSATION, conversation.id,
@@ -397,16 +386,16 @@ def rename_conversation(conversation_id: uuid.UUID, body: ConversationTitleInput
 
 @router.delete("/{conversation_id}", status_code=204)
 def delete_conversation(conversation_id: uuid.UUID, db: Db, user_id: UserId) -> None:
-    conversation = require_conversation(db, conversation_id, user_id)
+    conversation = owned_conversation(db, conversation_id, user_id)
     conversation.deleted_at = datetime.now(timezone.utc)
     conversation.updated_at = conversation.deleted_at
     record_event(db, user_id, AuditAction.DELETE, AuditEntityType.CONVERSATION, conversation.id)
     db.commit()
 
 
-@router.get("/{conversation_id}")
+@router.get("/{conversation_id}", response_model=ConversationWithMessagesOut)
 def get_conversation(conversation_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
-    conversation = require_conversation(db, conversation_id, user_id)
+    conversation = owned_conversation(db, conversation_id, user_id)
     messages = db.scalars(
         select(AssistantMessage)
         .where(
@@ -418,7 +407,7 @@ def get_conversation(conversation_id: uuid.UUID, db: Db, user_id: UserId) -> dic
     return {**conversation_json(conversation), "messages": [message_json(item) for item in messages]}
 
 
-@router.delete("/{conversation_id}/messages/{message_id}")
+@router.delete("/{conversation_id}/messages/{message_id}", response_model=ConversationWithMessagesOut)
 def delete_message_and_following(conversation_id: uuid.UUID, message_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     conversation = db.scalar(select(AssistantConversation).where(
         AssistantConversation.id == conversation_id,
@@ -427,7 +416,7 @@ def delete_message_and_following(conversation_id: uuid.UUID, message_id: uuid.UU
     ).with_for_update())
     if conversation is None:
         raise HTTPException(status_code=404, detail="对话不存在")
-    target = require_message(db, conversation_id, user_id, message_id)
+    target = owned_message(db, conversation_id, user_id, message_id)
     removed_count = db.scalar(
         select(func.count())
         .select_from(AssistantMessage)
@@ -461,80 +450,71 @@ def delete_message_and_following(conversation_id: uuid.UUID, message_id: uuid.UU
     return {**conversation_json(conversation), "messages": [message_json(item) for item in messages]}
 
 
-@router.post("/{conversation_id}/messages", status_code=201)
-def send_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, user_id: UserId) -> dict:
+def execute_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, user_id: uuid.UUID) -> dict:
     question = body.question.strip()
     if not question:
-        raise HTTPException(status_code=422, detail="问题不能为空")
-
-    require_conversation(db, conversation_id, user_id)
-
-    check_limit(user_id, "assistant", limit=10)
-    history = load_question_history(db, conversation_id, user_id, body.replace_from_message_id)
-
-    # 获取对话锁之前，先生成基于知识库内容的回答。
-    # 如果生成失败（包括模型未配置），对话内容保持不变。
+        raise HTTPException(422, "问题不能为空")
+    owned_conversation(db, conversation_id, user_id)
+    turn = start_turn(db, user_id, conversation_id, question, body.request_id, body.confirmation_id, body.selection, body.replace_from_message_id)
+    if turn.replay is not None:
+        return turn.replay
     trace = TraceRecorder("conversation", user_id, None, conversation_id)
-    status, error_type = "success", None
     try:
-        result = answer_question(question, db, user_id, history, limit_checked=True, trace=trace)
-        saved = save_question_result(db, conversation_id, user_id, question, result, body.replace_from_message_id)
+        check_limit(user_id, "assistant", limit=10)
+        history = load_question_history(db, conversation_id, user_id, body.replace_from_message_id)
+        # A selected target is a server fact, never an authority assertion in model history.
+        if turn.selected_id and not turn.confirmed:
+            history = [*history, {"role": "user", "content": "本轮继续执行：" + turn.intent.target_title + "；请按该名称定位并读取。"}]
+        raw = {"answer": "确认差异", "citations": [], "semantic_status": "not_requested", "answer_source": "model_knowledge", "retrieval_status": "not_requested"} if turn.confirmed else answer_question(question, db, user_id, history, limit_checked=True, trace=trace, turn=turn)
+        result = prepare_result(turn, raw)
+        # Lock conversation first, then grants/notes in one short transaction.
+        conversation = db.scalar(select(AssistantConversation).where(
+            AssistantConversation.id == conversation_id, AssistantConversation.user_id == user_id,
+            AssistantConversation.deleted_at.is_(None)
+        ).with_for_update())
+        if conversation is None:
+            raise HTTPException(404, "对话不存在")
+        apply_changes(db, turn, result)
+        saved = save_question_result(db, conversation_id, user_id, question, result, body.replace_from_message_id, commit=False)
+        finish_turn(db, turn, saved)
         trace.set_assistant_message(saved["messages"][1]["id"])
+        trace.finish("success")
         return saved
     except Exception as exc:
-        status, error_type = "error", type(exc).__name__
+        fail_turn(db, turn)
+        trace.finish("error", type(exc).__name__)
         raise
-    finally:
-        trace.finish(status, error_type)
+
+
+@router.post("/{conversation_id}/messages", status_code=201, response_model=ConversationWithMessagesOut)
+def send_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, user_id: UserId) -> dict:
+    return execute_question(conversation_id, body, db, user_id)
 
 
 @router.post("/{conversation_id}/messages/stream")
 def stream_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, user_id: UserId):
-    question = body.question.strip()
-    if not question:
-        raise HTTPException(status_code=422, detail="问题不能为空")
-    require_conversation(db, conversation_id, user_id)
+    if not body.question.strip():
+        raise HTTPException(422, "问题不能为空")
+    owned_conversation(db, conversation_id, user_id)
+
     def event_stream():
         def event(payload: dict) -> str:
             return f"data: {json.dumps(payload, ensure_ascii=False, separators=(',', ':'))}\n\n"
-
-        yield event({"type": "status", "text": "正在理解问题并准备回答…"})
-        trace = None
-        trace_status, trace_error = "error", None
+        yield event({"type": "status", "text": "正在准备并核验回答…"})
         try:
-            check_limit(user_id, "assistant", limit=10)
-            history = load_question_history(db, conversation_id, user_id, body.replace_from_message_id)
-            trace = TraceRecorder("conversation_stream", user_id, None, conversation_id)
-            answer_stream = stream_answer_question(question, db, user_id, history, limit_checked=True, trace=trace)
-            while True:
-                try:
-                    payload = next(answer_stream)
-                except StopIteration as finished:
-                    result = finished.value
-                    break
-                yield event(payload)
-            saved = save_question_result(db, conversation_id, user_id, question, result, body.replace_from_message_id)
-            trace.set_assistant_message(saved["messages"][1]["id"])
-            trace_status = "success"
-            trace.finish(trace_status)
+            saved = execute_question(conversation_id, body, db, user_id)
+            answer = saved["messages"][1]["content"]["answer"]
+            # Everything is validated and durable before the first answer byte leaves.
+            for start in range(0, len(answer), 48):
+                yield event({"type": "delta", "text": answer[start:start + 48]})
             yield event({"type": "complete", "result": saved})
         except HTTPException as exc:
-            trace_error = type(exc).__name__
-            if trace is not None:
-                trace.finish(trace_status, trace_error)
+            db.rollback()
             yield event({"type": "error", "detail": str(exc.detail)})
         except Exception as exc:
-            trace_error = type(exc).__name__
-            if trace is not None:
-                trace.finish(trace_status, trace_error)
-            log.warning("assistant conversation stream failed: %s", type(exc).__name__)
+            db.rollback()
+            log.warning("assistant stream failed: %s", type(exc).__name__)
             yield event({"type": "error", "detail": "回答生成失败，请稍后重试"})
-        finally:
-            if trace is not None and trace_status != "success" and trace_error is None:
-                trace.finish("cancelled", "GeneratorExit")
 
-    return StreamingResponse(
-        event_stream(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
-    )
+    return StreamingResponse(event_stream(), media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"})

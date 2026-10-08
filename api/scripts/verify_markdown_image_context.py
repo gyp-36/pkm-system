@@ -145,9 +145,9 @@ def main() -> None:
             description = descriptions_for_range(db, user_id, markdown_id, 0, len(markdown.body_md))[0]
 
         evidence = Evidence(user_id)
-        image_citation = evidence.add_image_description(description)
-        assert image_citation is not None
-        verified = evidence.verified(f"[{image_citation['citation_id']}]")
+        image_citation_id = evidence.add_image_description(description)
+        assert image_citation_id is not None
+        verified = evidence.verified(f"[{image_citation_id}]")
         assert len(verified) == 1 and verified[0]["note_id"] == str(image_id), verified
 
         embedded_texts.clear()

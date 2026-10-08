@@ -23,7 +23,7 @@ def main() -> None:
     calls = []
     fail_next = False
 
-    def fake_answer(question, _db, user_id, history=None, *, limit_checked=False, trace=None):
+    def fake_answer(question, _db, user_id, history=None, *, limit_checked=False, trace=None, turn=None):
         nonlocal fail_next
         if fail_next:
             fail_next = False
@@ -34,12 +34,7 @@ def main() -> None:
             "citations": [{
                 "citation_id": "S1",
                 "note_id": "7d2e5ec1-cbe3-43bc-b38a-33825a1b39de",
-                "note_version": 3,
                 "title": "检索验收笔记",
-                "source_field": "body",
-                "start_offset": 4,
-                "end_offset": 12,
-                "quote": "快照原文片段",
             }],
             "semantic_status": "unavailable" if question == "降级验证" else "ready",
         }
@@ -68,7 +63,7 @@ def main() -> None:
             assert [item["role"] for item in sent["messages"]] == ["user", "assistant"]
             assert sent["messages"][0]["content"] == {"text": "第一个问题"}
             assert sent["messages"][1]["content"]["answer"].startswith("根据笔记")
-            assert sent["messages"][1]["content"]["citations"][0]["quote"] == "快照原文片段"
+            assert sent["messages"][1]["content"]["citations"][0]["title"] == "检索验收笔记"
             assert sent["messages"][1]["content"]["semantic_status"] == "ready"
             checked(
                 alice,
@@ -87,7 +82,7 @@ def main() -> None:
             restored = checked(alice, "GET", f"/v1/assistant/conversations/{created['id']}", 200)
             assert len(restored["messages"]) == 4
             assert restored["messages"][0]["content"] == {"text": "第一个问题"}
-            assert restored["messages"][1]["content"]["citations"][0]["quote"] == "快照原文片段"
+            assert restored["messages"][1]["content"]["citations"][0]["title"] == "检索验收笔记"
             assert restored["messages"][3]["content"]["semantic_status"] == "unavailable"
             long_question = "无字数限制" * 500
             long_sent = checked(

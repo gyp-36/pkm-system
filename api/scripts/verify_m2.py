@@ -27,13 +27,13 @@ class FakeModelHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         payload = json.loads(self.rfile.read(length))
         assert payload.get("thinking") == {"type": "disabled"}
-        assert 1 <= payload.get("max_tokens", 0) <= 700
+        assert 1 <= payload.get("max_tokens", 0) <= 2200
         messages = payload["messages"]
         user_content = next((m["content"] for m in messages if m["role"] == "user"), "")
         tool_messages = [m for m in messages if m["role"] == "tool"]
         if payload.get("tools") and not tool_messages:
             name = "search_personal_notes" if not (str(user_content).startswith("分析笔记") or str(user_content).startswith("{")) else "read_personal_note"
-            arguments = {"question": str(user_content)} if name == "search_personal_notes" else {"note_id": re.search(r"[0-9a-f-]{36}", str(user_content)).group(), "include_citations": True}
+            arguments = {"question": str(user_content)} if name == "search_personal_notes" else {"note_ref": re.search(r"N\d+", str(user_content)).group(), "include_citations": True}
             message = {"role": "assistant", "content": None, "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": name, "arguments": json.dumps(arguments)}}]}
             finish_reason = "tool_calls"
         elif tool_messages:
@@ -45,18 +45,24 @@ class FakeModelHandler(BaseHTTPRequestHandler):
                 evidence = evidence.get("citations", [])
             if not isinstance(evidence, list):
                 evidence = []
-            if evidence and "citation_id" in evidence[0]:
+            if evidence and "source_ref" in evidence[0]:
                 FakeModelHandler.search_evidence.append(evidence)
-            marker = evidence[0]["citation_id"] if evidence else "S999"
+            marker = evidence[0]["source_ref"] if evidence else "S999"
             if str(user_content).startswith("分析笔记"):
                 content = json.dumps({"analysis": f"正文结构可更清晰 [{marker}]", "suggestions": [f"添加分段标题 [{marker}]"]}, ensure_ascii=False)
             elif str(user_content).startswith("{"):
                 source = json.loads(user_content)
-                content = json.dumps({"notebook_id": source["notebooks"][0]["id"] if source["notebooks"] else None, "tag_ids": [source["tags"][0]["id"]] if source["tags"] else [], "reason": f"主题与现有分类相关 [{marker}]"}, ensure_ascii=False)
+                content = json.dumps({"notebook_ref": source["notebooks"][0]["ref"] if source["notebooks"] else None, "tag_refs": [source["tags"][0]["ref"]] if source["tags"] else [], "reason": f"主题与现有分类相关 [{marker}]"}, ensure_ascii=False)
             elif "无效引用" in str(user_content):
                 content = "这是无法核对的回答 [S999]"
             else:
                 content = f"笔记记录了番茄钟方法 [{marker}]"
+            message = {"role": "assistant", "content": content}
+            finish_reason = "stop"
+        elif str(user_content).startswith('{') and '"sources"' in str(user_content):
+            source = json.loads(user_content)
+            refs = [item['source_ref'] for item in source['sources']]
+            content = json.dumps({"segments": [{"text": source['answer'] if refs else "引用无法核对，请补充资料。", "basis": "note" if refs else "uncertain", "source_refs": refs[:1], "supported": bool(refs)}]}, ensure_ascii=False)
             message = {"role": "assistant", "content": content}
             finish_reason = "stop"
         else:
@@ -116,14 +122,13 @@ def main() -> None:
                 for index in range(6)
             ]
             note = checked(alice, "POST", "/v1/notes", 201, json={"title": "时间管理", "body_md": "番茄钟帮助我专注学习。"})
-            matching_by_id = {item["id"]: item for item in [*matching_notes, note]}
             answer = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "我记录了什么时间管理方法？"})
-            assert answer["citations"] and answer["citations"][0]["quote"] in matching_by_id[answer["citations"][0]["note_id"]]["body_md"]
+            assert answer["citations"] and answer["citations"][0]["title"] in {"时间管理", *(f"时间管理素材 {index}" for index in range(6))}
             assert answer["citations"][0]["note_id"] in {note["id"], *(item["id"] for item in matching_notes)}
             assert "时间管理" in keyword_query_variants("我记录了什么时间管理方法？")
             assert FakeModelHandler.search_evidence[0] and len(FakeModelHandler.search_evidence[0]) == 5
-            rejected = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "请给出一个无效引用"})
-            assert rejected["citations"] == [] and "无法核对的回答" in rejected["answer"]
+            rejected = checked(alice, "POST", "/v1/assistant/ask", 200, json={"question": "请根据我的笔记给出一个无效引用"})
+            assert rejected["citations"] == [] and "核对" in rejected["answer"]
             analysis = checked(alice, "POST", "/v1/assistant/analyze", 200, json={"note_id": note["id"]})
             assert analysis["suggestions"] and analysis["citations"]
             suggestion = checked(alice, "POST", "/v1/assistant/classify", 200, json={"note_id": note["id"]})

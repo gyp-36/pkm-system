@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
-import { marked } from 'marked'
+import { marked, Renderer } from 'marked'
 import DOMPurify from 'dompurify'
 import AppIcon from './AppIcon.vue'
 import AssistantTraceExplorer from './AssistantTraceExplorer.vue'
 
 type SearchHit = { note_id: string; title: string; notebook_id: string | null; version: number; source_field: 'title' | 'body'; start_offset: number; end_offset: number; snippet: string; updated_at: string; match_source: 'keyword' | 'semantic' | 'both'; score: number }
 type UserMessage = { id: string; role: 'user'; content: { text: string }; created_at: string }
-type CitationTarget = { note_id: string; note_version: number; source_field: 'title' | 'body'; start_offset: number; end_offset: number }
-type Citation = CitationTarget & { citation_id: string; title: string; quote: string }
-type AssistantContent = { answer: string; citations: Citation[]; semantic_status: 'ready' | 'unavailable' | 'not_requested'; answer_source?: 'knowledge_base' | 'mixed' | 'model_knowledge' } | { items: SearchHit[]; semantic_status: 'ready' | 'unavailable' }
+type Citation = { note_id: string; citation_id: string; title: string }
+type PendingOperation = { operation_id: string; kind: 'selection' | 'confirmation'; candidates?: { index: number; title: string; notebook?: string }[]; changes?: { title: string; before: { title: string; body_md: string }; after: { title?: string; body_md?: string } }[] }
+type AssistantContent = { answer: string; citations: Citation[]; semantic_status: 'ready' | 'unavailable' | 'not_requested'; answer_source?: 'knowledge_base' | 'mixed' | 'model_knowledge' | 'unknown'; retrieval_status?: 'not_requested' | 'no_results' | 'retrieved' | 'error' | 'unknown'; pending_operation?: PendingOperation | null; operation_receipts?: { action: string; title: string }[] } | { items: SearchHit[]; semantic_status: 'ready' | 'unavailable' }
 type AssistantMessage = { id: string; role: 'assistant'; content: AssistantContent; created_at: string }
 type ChatMessage = UserMessage | AssistantMessage
 type SentMessages = { id: string; title: string; created_at: string; updated_at: string; messages: [UserMessage, AssistantMessage] }
@@ -94,8 +94,17 @@ function cleanAnswer(text: string) {
   return text.replace(/\s*\[S\d+\]/g, '').replace(/\s*\[S?\d*$/g, '')
 }
 
+function escapeAnswerHtml(text: string) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+const answerRenderer = new Renderer()
+// Preserve supplied HTML as text before it reaches a browser DOM parser.
+answerRenderer.html = ({ text }) => escapeAnswerHtml(text)
+answerRenderer.image = ({ text }) => escapeAnswerHtml(text || '图片')
+
 function renderAnswer(text: string) {
-  return DOMPurify.sanitize(marked.parse(cleanAnswer(text), { async: false, gfm: true, breaks: true }) as string, { FORBID_TAGS: ['img', 'iframe'] })
+  return DOMPurify.sanitize(marked.parse(cleanAnswer(text), { renderer: answerRenderer, async: false, gfm: true, breaks: true }) as string, { FORBID_TAGS: ['img', 'iframe', 'style', 'svg', 'math', 'object', 'embed'], FORBID_ATTR: ['style'] })
 }
 
 function sourcesFor(content: AssistantContent) {
@@ -104,6 +113,7 @@ function sourcesFor(content: AssistantContent) {
 }
 
 type StreamEvent = { type: 'status'; text: string } | { type: 'delta'; text: string } | { type: 'complete'; result: SentMessages } | { type: 'error'; detail: string }
+let retryRequest: { signature: string; id: string } | null = null
 
 async function readAnswerStream(response: Response, conversationId: string, replaceFromMessageId: string | null): Promise<void> {
   if (!response.body) throw new Error('浏览器未能读取回答流')
@@ -143,10 +153,13 @@ async function readAnswerStream(response: Response, conversationId: string, repl
   if (!completed) throw new Error('回答流意外结束，请重试')
 }
 
-async function ask(overrideQuestion?: string, replaceFromMessageId: string | null = null) {
+async function ask(overrideQuestion?: string, replaceFromMessageId: string | null = null, confirmationId?: string, selection?: number) {
   const asked = (overrideQuestion ?? question.value).trim()
   if (!asked || busy.value || !props.conversationId) return
   const conversationId = props.conversationId
+  if (asked.length > 10000) { error.value = '消息最多 10000 字，请分段处理'; return }
+  const signature = JSON.stringify([conversationId, asked, replaceFromMessageId, confirmationId, selection])
+  if (!retryRequest || retryRequest.signature !== signature) retryRequest = { signature, id: crypto.randomUUID() }
   busy.value = true
   error.value = ''
   optimisticQuestion.value = asked
@@ -162,7 +175,7 @@ async function ask(overrideQuestion?: string, replaceFromMessageId: string | nul
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: asked, replace_from_message_id: replaceFromMessageId }),
+      body: JSON.stringify({ question: asked, replace_from_message_id: replaceFromMessageId, request_id: retryRequest.id, confirmation_id: confirmationId, selection }),
       signal: controller.signal,
     })
     if (!response.ok) {
@@ -171,6 +184,7 @@ async function ask(overrideQuestion?: string, replaceFromMessageId: string | nul
       throw new Error(detail)
     }
     await readAnswerStream(response, conversationId, replaceFromMessageId)
+    retryRequest = null
     optimisticQuestion.value = ''
     streamedAnswer.value = ''
     streamStatus.value = ''
@@ -289,9 +303,27 @@ watch(() => [props.messages.length, props.loading, busy.value, streamedAnswer.va
             <span class="chat-answer-icon">✦</span>
             <div v-if="'answer' in message.content" class="chat-answer-content">
               <small v-if="message.content.semantic_status === 'unavailable'" class="chat-status">语义检索暂不可用，本轮已尝试关键词检索</small>
-              <small v-if="message.content.answer_source === 'model_knowledge'" class="chat-status">笔记中没有找到合适依据，以下为通用知识回答</small>
+              <small v-if="message.content.operation_receipts?.length" class="chat-status">本轮操作已保存</small>
+              <small v-else-if="message.content.pending_operation" class="chat-status">待确认目标或差异，尚未保存</small>
+              <small v-else-if="message.content.retrieval_status === 'no_results'" class="chat-status">本轮检索未找到合适依据</small>
+              <small v-else-if="message.content.retrieval_status === 'error'" class="chat-status">本轮检索失败，请稍后重试</small>
               <small v-else-if="message.content.answer_source === 'mixed'" class="chat-status">回答结合了笔记证据与通用知识补充</small>
+              <small v-else-if="message.content.retrieval_status === 'retrieved' && message.content.answer_source === 'unknown'" class="chat-status">当前资料不足以核实这份回答</small>
+              <small v-else-if="message.content.retrieval_status === 'retrieved' && message.content.answer_source === 'model_knowledge'" class="chat-status">本轮已查看相关笔记，回答采用通用知识</small>
+              <small v-else-if="message.content.retrieval_status === 'not_requested'" class="chat-status">本轮未检索笔记</small>
               <div class="chat-answer-text" v-html="renderAnswer(message.content.answer)"></div>
+              <div v-if="message.content.pending_operation && message.id === visibleMessages.at(-1)?.id" class="chat-operation">
+                <template v-if="message.content.pending_operation.kind === 'selection'">
+                  <button v-for="candidate in message.content.pending_operation.candidates" :key="candidate.index" type="button" :disabled="busy" @click="ask(`选择${candidate.index}`, null, message.content.pending_operation!.operation_id, candidate.index)">{{ candidate.index }}. {{ candidate.title }} · {{ candidate.notebook || '默认位置' }}</button>
+                </template>
+                <template v-else>
+                  <div v-for="change in message.content.pending_operation.changes" :key="change.title">
+                    <strong>{{ change.title }}</strong><p>修改前</p><pre>{{ change.after.title !== undefined ? change.before.title : change.before.body_md }}</pre><p>修改后</p><pre>{{ change.after.title !== undefined ? change.after.title : change.after.body_md }}</pre>
+                  </div>
+                  <button type="button" :disabled="busy" @click="ask('确认保存上述差异', null, message.content.pending_operation!.operation_id)">确认保存这些差异</button>
+                  <button type="button" :disabled="busy" @click="ask('取消此前操作，不做任何改动')">取消</button>
+                </template>
+              </div>
               <div v-if="sourcesFor(message.content).length" class="chat-citations"><span class="chat-sources-label">来源笔记</span>
                 <button v-for="item in sourcesFor(message.content)" :key="`${message.id}-${item.note_id}`" class="chat-citation" @click="emit('openNote', item.note_id)"><strong>{{ item.title }}</strong><span>打开笔记 ↗</span></button>
               </div>
@@ -335,7 +367,7 @@ watch(() => [props.messages.length, props.loading, busy.value, streamedAnswer.va
         <textarea ref="composerInput" v-model="question" rows="2" aria-label="输入消息" placeholder="给笔记助手发送消息…" @keydown="handleComposerKeydown" />
         <div class="chat-composer-foot"><span class="chat-key-hint">Enter 发送 · Shift + Enter 换行</span><label v-if="modelConfigured" class="chat-model-picker"><span class="chat-model-dot"></span><select v-model="modelChoice" :disabled="busy || loading || changingModel" aria-label="选择聊天模型" @change="changeModel"><option value="deepseek-flash">DeepSeek Flash</option><option value="deepseek-v4-pro">DeepSeek V4 Pro</option></select><AppIcon name="chevron" /></label><button v-else class="chat-model-config-link" type="button" @click="emit('configureModel')">配置模型</button><button type="submit" class="send-button" :disabled="busy || loading || changingModel || !conversationId || !question.trim() || !modelConfigured" aria-label="发送消息">↑</button></div>
       </form>
-      <p class="chat-footnote">回答基于你的笔记生成，请打开来源核对重要内容</p>
+      <p class="chat-footnote">重要内容请结合来源核对</p>
     </div>
   </div>
 </template>

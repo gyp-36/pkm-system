@@ -6,8 +6,8 @@
 
 ## 输出格式
 返回 JSON 对象：
-- notebook_id：UUID 字符串或 null
-- tag_ids：UUID 字符串数组
+- notebook_ref：本轮提供的 B 编号字符串或 null
+- tag_refs：本轮提供的 T 编号字符串数组
 - reason：含 [S编号] 原文引用的解释
 
 ## 边界（不可以做）

@@ -23,6 +23,7 @@ from app.core.lifecycle import record_event, record_revision
 from app.core.models import AuditEvent, DigestRun, DigestSettings, Note, NoteFileVersion, NoteReminder, NoteRevision
 from app.knowledge.notes import queue_index
 from app.prompts import load_prompt
+from app.contracts.digests import DigestListOut, DigestRunOut, DigestSettingsOut
 
 
 log = logging.getLogger(__name__)
@@ -104,17 +105,17 @@ def run_json(row: DigestRun) -> dict:
     }
 
 
-@router.get("/settings")
+@router.get("/settings", response_model=DigestSettingsOut)
 def get_settings(db: Db, user_id: UserId) -> dict:
     return settings_json(db.get(DigestSettings, user_id))
 
 
-@router.put("/settings")
+@router.put("/settings", response_model=DigestSettingsOut)
 def put_settings(body: SettingsUpdate, db: Db, user_id: UserId) -> dict:
     return _save_settings(db, user_id, body.model_dump())
 
 
-@router.patch("/settings")
+@router.patch("/settings", response_model=DigestSettingsOut)
 def patch_settings(body: SettingsPatch, db: Db, user_id: UserId) -> dict:
     changes = body.model_dump(exclude_unset=True)
     if not changes or any(value is None for value in changes.values()):
@@ -145,7 +146,7 @@ def _save_settings(db: Db, user_id: uuid.UUID, changes: dict) -> dict:
     return settings_json(row)
 
 
-@router.get("")
+@router.get("", response_model=DigestListOut)
 def list_runs(
     db: Db, user_id: UserId, kind: str | None = Query(default=None, pattern="^(daily|weekly)$"),
     limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0),
@@ -169,7 +170,7 @@ def list_runs(
     }
 
 
-@router.post("/{run_id}/retry")
+@router.post("/{run_id}/retry", response_model=DigestRunOut)
 def retry_run(run_id: uuid.UUID, db: Db, user_id: UserId) -> dict:
     row = db.scalar(select(DigestRun).where(DigestRun.id == run_id, DigestRun.user_id == user_id).with_for_update())
     if row is None:

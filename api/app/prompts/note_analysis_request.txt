@@ -1,1 +1,1 @@
-分析笔记 [[note_id]]。请调用 read_personal_note，并设置 include_citations=true。
+分析笔记 [[note_ref]]。请调用 read_personal_note，并以 note_ref 作为参数、设置 include_citations=true。[[note_ref]] 是本轮引用编号（如 N1），请原样传入，不要编造或猜测数据库 ID。

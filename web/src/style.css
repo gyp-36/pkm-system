@@ -615,7 +615,7 @@
   .notebook-back-to-top { right: 18px; bottom: 18px; width: 42px; height: 42px; }
 }
 
-/* 登录页：与 design/login-redesign-v1.html 保持一致。 */
+/* 登录页 */
 .login-page { display: grid; grid-template-columns: minmax(610px, 51%) minmax(480px, 49%); min-height: 100dvh; overflow: hidden; }
 .login-form-side { display: flex; flex-direction: column; min-height: max(900px, 100dvh); padding: 44px clamp(48px, 5.7vw, 96px) 36px; background: #fcfaf7; }
 .login-brand { display: inline-flex; align-items: center; gap: 12px; width: max-content; color: #3c322e; font-size: 16px; font-weight: 650; letter-spacing: .08em; }
@@ -678,3 +678,9 @@
   .login-photo-frame { width: 42%; }
 }
 @media (prefers-reduced-motion: reduce) { .login-submit, .login-field input { transition: none; } }
+
+/* Server-bound assistant previews; literal text never becomes HTML. */
+.chat-operation { margin: 14px 0; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.chat-operation pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; padding: 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 12px; }
+.chat-operation button { margin: 6px 8px 0 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--card); color: var(--ink); cursor: pointer; }
+.chat-operation button:disabled { opacity: .5; cursor: default; }

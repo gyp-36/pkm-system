@@ -468,6 +468,28 @@ class AssistantMessage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
+class AssistantOperation(Base):
+    __tablename__ = "pkm_assistant_operations"
+    __table_args__ = (
+        UniqueConstraint("user_id", "request_id", name="uq_assistant_operation_request"),
+        Index("ix_assistant_operation_conversation", "user_id", "conversation_id", "created_at"),
+        Index("ix_assistant_operation_expiry", "expires_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    conversation_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    request_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    request_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    context_fingerprint: Mapped[str | None] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    intent: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    proposal: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    receipt: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class AssistantTrace(Base):
     __tablename__ = "pkm_assistant_traces"
     __table_args__ = (

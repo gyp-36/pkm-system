@@ -16,6 +16,7 @@ from app.knowledge.file_ingest import claim_job, process_job, retry_job
 from app.knowledge.upload_sessions import cleanup_expired_sessions
 from app.knowledge.archive import purge_expired_archive
 from app.assistant.tracing import cleanup_expired_traces
+from app.assistant.operations import cleanup_operations
 from app.ops.maintenance import access_log_retention_days, purge_access_logs
 
 
@@ -58,6 +59,8 @@ while running:
             with SessionLocal() as db:
                 cleanup_expired_sessions(db)
             cleanup_expired_traces()
+            with SessionLocal.begin() as db:
+                cleanup_operations(db)
             last_cleanup = time.monotonic()
         now = datetime.now(ARCHIVE_TIMEZONE)
         if run_maintenance and now >= next_daily_maintenance:

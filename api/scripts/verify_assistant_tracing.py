@@ -113,6 +113,10 @@ def verify_developer_routes(trace_id: uuid.UUID, message_id: uuid.UUID) -> None:
             response = client.post("/v1/auth/register", json={"email": f"trace-{suffix}@example.com", "password": "TestPassword123!"})
             assert response.status_code == 201, response.text
             account_ids.append(uuid.UUID(response.json()["id"]))
+            assert client.get(f"/v1/dev/assistant-traces/{trace_id}").status_code == 404
+            assert client.get(f"/v1/dev/assistant-traces/by-message/{message_id}").status_code == 404
+            with SessionLocal.begin() as db:
+                db.get(AssistantTrace, trace_id).user_id = account_ids[0]
             assert client.get("/v1/dev/assistant-traces/enabled").json() == {"enabled": True}
             page = client.get("/v1/dev/assistant-traces", params={"entrypoint": "verify", "status": "success", "limit": 10})
             assert page.status_code == 200 and any(item["id"] == str(trace_id) for item in page.json()["items"])
