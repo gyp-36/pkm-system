@@ -8,7 +8,10 @@ import AssistantTraceExplorer from './AssistantTraceExplorer.vue'
 type SearchHit = { note_id: string; title: string; notebook_id: string | null; version: number; source_field: 'title' | 'body'; start_offset: number; end_offset: number; snippet: string; updated_at: string; match_source: 'keyword' | 'semantic' | 'both'; score: number }
 type UserMessage = { id: string; role: 'user'; content: { text: string }; created_at: string }
 type Citation = { note_id: string; citation_id: string; title: string }
-type PendingOperation = { operation_id: string; kind: 'selection' | 'confirmation'; candidates?: { index: number; title: string; notebook?: string }[]; changes?: { title: string; before: { title: string; body_md: string }; after: { title?: string; body_md?: string } }[] }
+type PendingOperation =
+  | { operation_id: string; kind: 'selection'; candidates: { index: number; title: string; notebook?: string | null }[] }
+  | { operation_id: string; kind: 'confirmation'; changes: { title: string; before: { title: string; body_md: string }; after: { title?: string; body_md?: string } }[] }
+  | { operation_id: string; kind: 'input'; action: 'create' | 'update'; missing: ('target_title' | 'body_md' | 'title')[] }
 type AssistantContent = { answer: string; citations: Citation[]; semantic_status: 'ready' | 'unavailable' | 'not_requested'; answer_source?: 'knowledge_base' | 'mixed' | 'model_knowledge' | 'unknown'; retrieval_status?: 'not_requested' | 'no_results' | 'retrieved' | 'error' | 'unknown'; pending_operation?: PendingOperation | null; operation_receipts?: { action: string; title: string }[] } | { items: SearchHit[]; semantic_status: 'ready' | 'unavailable' }
 type AssistantMessage = { id: string; role: 'assistant'; content: AssistantContent; created_at: string }
 type ChatMessage = UserMessage | AssistantMessage
@@ -304,6 +307,7 @@ watch(() => [props.messages.length, props.loading, busy.value, streamedAnswer.va
             <div v-if="'answer' in message.content" class="chat-answer-content">
               <small v-if="message.content.semantic_status === 'unavailable'" class="chat-status">语义检索暂不可用，本轮已尝试关键词检索</small>
               <small v-if="message.content.operation_receipts?.length" class="chat-status">本轮操作已保存</small>
+              <small v-else-if="message.content.pending_operation?.kind === 'input'" class="chat-status">等待补充内容，尚未保存</small>
               <small v-else-if="message.content.pending_operation" class="chat-status">待确认目标或差异，尚未保存</small>
               <small v-else-if="message.content.retrieval_status === 'no_results'" class="chat-status">本轮检索未找到合适依据</small>
               <small v-else-if="message.content.retrieval_status === 'error'" class="chat-status">本轮检索失败，请稍后重试</small>
@@ -316,11 +320,15 @@ watch(() => [props.messages.length, props.loading, busy.value, streamedAnswer.va
                 <template v-if="message.content.pending_operation.kind === 'selection'">
                   <button v-for="candidate in message.content.pending_operation.candidates" :key="candidate.index" type="button" :disabled="busy" @click="ask(`选择${candidate.index}`, null, message.content.pending_operation!.operation_id, candidate.index)">{{ candidate.index }}. {{ candidate.title }} · {{ candidate.notebook || '默认位置' }}</button>
                 </template>
-                <template v-else>
+                <template v-else-if="message.content.pending_operation.kind === 'confirmation'">
                   <div v-for="change in message.content.pending_operation.changes" :key="change.title">
                     <strong>{{ change.title }}</strong><p>修改前</p><pre>{{ change.after.title !== undefined ? change.before.title : change.before.body_md }}</pre><p>修改后</p><pre>{{ change.after.title !== undefined ? change.after.title : change.after.body_md }}</pre>
                   </div>
                   <button type="button" :disabled="busy" @click="ask('确认保存上述差异', null, message.content.pending_operation!.operation_id)">确认保存这些差异</button>
+                  <button type="button" :disabled="busy" @click="ask('取消此前操作，不做任何改动')">取消</button>
+                </template>
+                <template v-else>
+                  <p>{{ message.content.pending_operation.missing.includes('target_title') ? '在下方回复笔记标题即可继续。' : '在下方补充要保存的正文即可继续。' }}</p>
                   <button type="button" :disabled="busy" @click="ask('取消此前操作，不做任何改动')">取消</button>
                 </template>
               </div>

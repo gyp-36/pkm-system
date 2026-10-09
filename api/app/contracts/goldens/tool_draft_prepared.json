@@ -1,0 +1,4 @@
+{
+  "keys": ["status", "title", "variant"],
+  "nested": {}
+}

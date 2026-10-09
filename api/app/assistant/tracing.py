@@ -101,6 +101,8 @@ class TraceRecorder:
                 "argument_fields": sorted(str(key)[:80] for key in args)[:20] if isinstance(args, dict) else [],
             })
         usage = getattr(message, "usage_metadata", None)
+        metadata = getattr(message, "response_metadata", {}) or {}
+        finish_reason = metadata.get("finish_reason")
         safe_usage = {}
         if isinstance(usage, dict):
             for key in ("input_tokens", "output_tokens", "total_tokens"):
@@ -122,6 +124,7 @@ class TraceRecorder:
                 "tool_calls": safe_calls,
                 "output_characters": output_characters,
                 "usage": safe_usage,
+                "finish_reason": finish_reason if finish_reason in {"stop", "length", "tool_calls", "content_filter"} else None,
             },
         )
 

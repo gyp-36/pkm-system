@@ -63,6 +63,9 @@ def execution_errors(evidence, answer: str) -> list[str]:
     clauses = re.split(r"[。！!\n]", answer)
     for clause in clauses:
         text = re.sub(r"^[\s*#-]+", "", clause)
+        turn = getattr(evidence, "turn", None)
+        if (turn is None or not turn.changes) and re.search(r"(?:我(?:现在|马上|这就)?(?:就)?(?:来|会|将)?|现在)(?:提交|创建|保存|写入)(?:这篇|笔记|创建|新建|文章|正文)", text):
+            errors.append("没有暂存操作，不能承诺正在提交或创建；明确本轮尚未保存")
         completion = re.match(r"(?:我)?已(?:经)?(?:成功)?(?:保存|新建|修改|创建|更新)(?:了|完成|好)?", text)
         # “已保存的证据副本” names user material; it is not an assertion that
         # the assistant just saved something. An explicit assistant subject

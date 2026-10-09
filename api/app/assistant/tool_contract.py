@@ -21,6 +21,8 @@ NOTE_LINK_TARGET = re.compile(r"(#/notes\?note=)[0-9a-fA-F-]{36}")
 # 顶层信封：payload 为 dict 时按其 key 集合校验；``list`` 为 True 时 payload 是
 # 由同构 dict 组成的列表。
 ENVELOPES: dict[str, dict] = {
+    "tool_error": {"keys": frozenset({"status", "code", "message", "recoverable"})},
+    "draft_prepared": {"keys": frozenset({"status", "title", "variant"})},
     "search_hits": {
         "keys": frozenset({
             "source_ref", "note_ref", "title", "source_field", "excerpt",
@@ -63,6 +65,7 @@ NESTED_ENVELOPES: dict[str, frozenset[str]] = {
 # Every field has a concrete type. Open dictionaries are not permitted; new
 # metadata fields require explicit purpose review and schema registration.
 SCALAR_TYPES = {
+    "recoverable": bool,
     "untrusted": bool, "truncated": bool, "index": int,
     "author": (str, type(None)), "published_at": (str, type(None)),
     "notebook": (str, type(None)), "metadata": {},

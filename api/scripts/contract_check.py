@@ -46,7 +46,7 @@ ALLOWLISTED_PATHS = {
 # 用户所属实体：这些实体的 select 必须带归属过滤，除非函数在 allowlist 内。
 OWNED_ENTITIES = {
     "Note", "Notebook", "Tag", "NoteReminder",
-    "AssistantConversation", "AssistantMessage", "AssistantOperation", "AssistantTrace", "FileUploadSession",
+    "AssistantConversation", "AssistantMessage", "AssistantOperation", "AssistantTrace", "AssistantMemory", "AssistantArtifact", "FileUploadSession",
 }
 # 已退役的重复实现：不得再次出现。
 RETIRED_SYMBOLS = {"current_note", "owned", "_owned_session", "require_conversation", "require_message"}

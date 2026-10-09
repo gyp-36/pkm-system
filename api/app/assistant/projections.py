@@ -12,6 +12,7 @@ FIELDS = {"title": str, "body_md": str}
 RECEIPT = {"action": str, "title": str}
 SELECTION = {"operation_id": str, "kind": str, "candidates": [{"index": int, "title": str, "notebook": (str, type(None))}]}
 CONFIRMATION = {"operation_id": str, "kind": str, "changes": [{"title": str, "before": FIELDS, "after": FIELDS}]}
+INPUT = {"operation_id": str, "kind": str, "action": str, "missing": [str]}
 
 
 def safe_shape(value, schema, fallback):
@@ -33,11 +34,14 @@ def public_content(content, *, user=False, literals=()):
     identities = [c["note_id"] for c in citations]
     answer = project_text(content.get("answer", ""), identities=identities, literals=literals)
     pending = content.get("pending_operation")
-    if isinstance(pending, dict) and pending.get("kind") in ("selection", "confirmation"):
-        pending = safe_shape(pending, SELECTION if pending["kind"] == "selection" else CONFIRMATION, None)
+    if isinstance(pending, dict) and pending.get("kind") in ("selection", "confirmation", "input"):
+        kind = pending["kind"]
+        pending = safe_shape(pending, {"selection": SELECTION, "confirmation": CONFIRMATION, "input": INPUT}[kind], None)
         # A malformed preview must not become an actionable confirmation.
-        required = {"operation_id", "kind", "candidates" if pending and pending.get("kind") == "selection" else "changes"}
+        required = {"operation_id", "kind", *({"selection": ["candidates"], "confirmation": ["changes"], "input": ["action", "missing"]}[kind])}
         if pending is not None and not required.issubset(pending):
+            pending = None
+        if pending is not None and kind == "input" and (pending["action"] not in {"create", "update"} or any(f not in {"target_title", "body_md", "title"} for f in pending["missing"])):
             pending = None
     else:
         pending = None

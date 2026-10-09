@@ -50,6 +50,13 @@ class PendingConfirmationOut(ContractModel):
     changes: list[ChangePreviewOut]
 
 
+class PendingInputOut(ContractModel):
+    operation_id: str
+    kind: Literal["input"]
+    action: Literal["create", "update"]
+    missing: list[Literal["target_title", "body_md", "title"]]
+
+
 class CitationOut(ContractModel):
     citation_id: str
     note_id: str
@@ -62,7 +69,7 @@ class AnswerOut(ContractModel):
     semantic_status: str
     answer_source: str
     retrieval_status: str = "unknown"
-    pending_operation: PendingSelectionOut | PendingConfirmationOut | None = None
+    pending_operation: PendingSelectionOut | PendingConfirmationOut | PendingInputOut | None = None
     operation_receipts: list[OperationReceiptOut] = []
 
 
