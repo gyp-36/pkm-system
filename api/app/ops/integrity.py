@@ -5,6 +5,8 @@ from sqlalchemy.engine import Connection
 
 
 CHECKS = {
+    "assistant_memories_invalid_conversation": "SELECT count(*) FROM pkm_assistant_memories x LEFT JOIN pkm_assistant_conversations c ON c.id=x.conversation_id AND c.user_id=x.user_id WHERE c.id IS NULL",
+    "assistant_artifacts_invalid_source": "SELECT count(*) FROM pkm_assistant_artifacts x LEFT JOIN pkm_assistant_messages m ON m.id=x.source_message_id AND m.conversation_id=x.conversation_id AND m.user_id=x.user_id WHERE m.id IS NULL",
     "sessions_without_account": "SELECT count(*) FROM pkm_user_sessions c LEFT JOIN pkm_accounts p ON p.id=c.user_id WHERE p.id IS NULL",
     "notebooks_without_account": "SELECT count(*) FROM pkm_notebooks c LEFT JOIN pkm_accounts p ON p.id=c.user_id WHERE p.id IS NULL",
     "tags_without_account": "SELECT count(*) FROM pkm_tags c LEFT JOIN pkm_accounts p ON p.id=c.user_id WHERE p.id IS NULL",

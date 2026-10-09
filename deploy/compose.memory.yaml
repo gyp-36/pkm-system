@@ -1,0 +1,5 @@
+# Memory-only release. Other uncommitted assistant changes are excluded from
+# this image; a later normal source build includes the workspace memory module.
+services:
+  api:
+    image: pkm-api:conversation-memory-20261008

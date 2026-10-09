@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from app.core import object_storage
 from app.core.db import SessionLocal
 from app.core.models import (
-    AccessLog, Account, AssistantOperation, AssistantConversation, AssistantMessage, AssistantTrace, AuditEvent, FileIngestJob,
+    AccessLog, Account, AssistantOperation, AssistantConversation, AssistantMessage, AssistantTrace, AssistantMemory, AssistantArtifact, AuditEvent, FileIngestJob,
     FileUploadSession, IndexJob, LinkDraft, MarkdownImageReference, Note, NoteChunk, NoteFileVersion,
     NoteRevision, NoteTextBlock, ModelConnection, Notebook, NoteTag, Tag, UserSession,
     DigestRun, DigestSettings, NoteReminder,
@@ -108,7 +108,7 @@ def purge_accounts(db: Session, account_ids: list[uuid.UUID]) -> None:
         except Exception:
             pass
     for model in (
-        AssistantOperation, AssistantTrace, AssistantMessage, AssistantConversation, FileIngestJob, NoteTextBlock,
+        AssistantMemory, AssistantArtifact, AssistantOperation, AssistantTrace, AssistantMessage, AssistantConversation, FileIngestJob, NoteTextBlock,
         FileUploadSession, LinkDraft, MarkdownImageReference, NoteFileVersion, NoteChunk, NoteTag, IndexJob, NoteRevision, AuditEvent,
         AccessLog,
         NoteReminder, DigestRun, DigestSettings, UserSession, ModelConnection, Note, Tag, Notebook, Account,

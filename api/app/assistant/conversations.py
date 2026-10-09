@@ -6,15 +6,17 @@ import re
 import uuid
 import hashlib
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import and_, delete, func, or_, select
 
-from app.assistant.assistant import answer_question, stream_answer_question, summarize_conversation_context
+from app.assistant.assistant import answer_question, stream_answer_question, summarize_conversation_context, answer_system_prompt
 from app.assistant.tracing import TraceRecorder
-from app.assistant.policy import MAX_QUESTION_CHARS
+from app.assistant.policy import MAX_QUESTION_CHARS, MAX_CONTEXT_BYTES
+from app.assistant import conversation_memory as memory
 from app.assistant.operations import start_turn, prepare_result, apply_changes, finish_turn, fail_turn, fingerprint
 from app.assistant.projections import public_content, public_conversation
 from app.assistant.visibility import project_text
@@ -32,10 +34,6 @@ from app.core.rate_limit import check_limit
 router = APIRouter(prefix="/v1/assistant/conversations", tags=["assistant conversations"])
 log = logging.getLogger(__name__)
 MAX_HISTORY_MESSAGES = 8
-MAX_HISTORY_MESSAGE_CHARS = 1600
-SUMMARY_THRESHOLD_MESSAGES = 16
-SUMMARY_REFRESH_MESSAGES = 8
-SUMMARY_FALLBACK_MESSAGES = 16
 
 
 class QuestionInput(BaseModel):
@@ -160,7 +158,7 @@ def message_context(item: AssistantMessage) -> dict | None:
         text = project_text(re.sub(r"\[S\d+\]", "[历史引用]", text), literals=literals)
     if not isinstance(text, str) or not text.strip():
         return None
-    return {"role": role, "content": text[:MAX_HISTORY_MESSAGE_CHARS]}
+    return {"role": role, "content": text}
 
 
 def from_message_onward(message: AssistantMessage):
@@ -191,115 +189,92 @@ def summary_message(summary: str) -> dict:
     }
 
 
-def load_question_history(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID, replace_from_message_id: uuid.UUID | None = None) -> list[dict]:
+def load_question_history(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
+                          replace_from_message_id: uuid.UUID | None = None, *, question: str = "", trace=None) -> list[dict]:
     conversation = owned_conversation(db, conversation_id, user_id)
-    cutoff = None
+    query = select(AssistantMessage).where(
+        AssistantMessage.user_id == user_id, AssistantMessage.conversation_id == conversation_id,
+    ).order_by(AssistantMessage.created_at, AssistantMessage.id)
     if replace_from_message_id is not None:
         target = owned_message(db, conversation_id, user_id, replace_from_message_id)
         if target.role != AssistantMessageRole.USER:
-            raise HTTPException(status_code=422, detail="只能从用户问题重新提问")
-        cutoff = target
-    query = (
-        select(AssistantMessage)
-        .where(
-            AssistantMessage.user_id == user_id,
-            AssistantMessage.conversation_id == conversation_id,
-        )
-        .order_by(AssistantMessage.created_at.desc(), AssistantMessage.id.desc())
-        .limit(MAX_HISTORY_MESSAGES)
-    )
-    if cutoff is not None:
-        query = query.where(or_(
-            AssistantMessage.created_at < cutoff.created_at,
-            (AssistantMessage.created_at == cutoff.created_at) & (AssistantMessage.id < cutoff.id),
-        ))
-    recent_rows = list(reversed(db.scalars(query).all()))
-
-    # Re-asking from an earlier message creates a new branch. Use only history before
-    # that point; the old summary may describe messages that are about to be removed.
-    if cutoff is not None:
-        history = [context for item in recent_rows if (context := message_context(item)) is not None]
-        db.rollback()
-        return history
-
-    total_messages = db.scalar(select(func.count(AssistantMessage.id)).where(
-        AssistantMessage.user_id == user_id,
-        AssistantMessage.conversation_id == conversation_id,
-    )) or 0
-    history = [context for item in recent_rows if (context := message_context(item)) is not None]
-
-    if total_messages > SUMMARY_THRESHOLD_MESSAGES and len(recent_rows) == MAX_HISTORY_MESSAGES:
-        summary = conversation.context_summary
-        cursor_id = conversation.summary_through_message_id
-        cursor = None
-        if summary and cursor_id:
-            cursor = db.scalar(select(AssistantMessage).where(
-                AssistantMessage.id == cursor_id,
-                AssistantMessage.user_id == user_id,
-                AssistantMessage.conversation_id == conversation_id,
-            ))
-            if cursor is None:
-                # A summary whose checkpoint was removed cannot be trusted.
-                summary = None
-                cursor_id = None
-                conversation.context_summary = None
-                conversation.summary_through_message_id = None
-                conversation.summary_updated_at = None
+            raise HTTPException(422, "只能从用户问题重新提问")
+        query = query.where(message_before(target))
+    rows = list(db.scalars(query).all())
+    contexts = [message_context(row) for row in rows]
+    state = memory.load_state(db, conversation, rows)
+    # Model calls roll back the read transaction. Keep an immutable source
+    # snapshot rather than expired ORM objects that could reload a newer branch.
+    rows = [SimpleNamespace(id=row.id, role=row.role, content=dict(row.content), created_at=row.created_at) for row in rows]
+    snapshot_hash = memory.transcript_hash(rows)
+    reserve = 24_000 if memory.FOLLOWUP.search(question) or re.search(r"原文|全文|完整内容|方案|版本", question) else 12_000
+    budget = min(memory.HISTORY_BYTES, MAX_CONTEXT_BYTES - memory.encoded_size(answer_system_prompt())
+                 - memory.encoded_size(question) - reserve)
+    if budget < 2000:
+        raise HTTPException(422, "当前问题占用过多上下文预算，请分段处理；原始会话仍完整保留。")
+    summary, covered, status = None, 0, "not_needed"
+    metadata = conversation.summary_metadata or {}
+    # A legacy summary without a source fingerprint is rebuilt from original
+    # messages; a replacement branch never reuses future summaries.
+    if replace_from_message_id is None and conversation.context_summary and metadata.get("schema_version") == memory.SCHEMA_VERSION:
+        covered = metadata.get("covered_messages", 0)
+        if (type(covered) is int and 0 < covered <= len(rows)
+                and metadata.get("source_hash") == memory.transcript_hash(rows[:covered])
+                and conversation.summary_through_message_id == rows[covered - 1].id):
+            summary = conversation.context_summary
+            status = "reused"
+        else:
+            covered = 0
+    raw_size = memory.encoded_size([c for c in contexts if c is not None])
+    remaining_size = memory.encoded_size([c for c in contexts[covered:] if c is not None])
+    frame_size = memory.encoded_size(memory.memory_frame(state, memory.make_registry(rows, contexts), question)) if rows else 0
+    needs_compaction = raw_size > budget and (not summary or remaining_size + frame_size + memory.encoded_size(summary) > budget - 1000)
+    if needs_compaction:
+        boundary = memory.recent_boundary(rows)
+        if boundary > covered:
+            source_messages = contexts[covered:boundary]
+            candidate = summary
+            status = "failed"
+            batches = list(memory.summary_batches(source_messages))
+            # A large uncompressed legacy transcript may require many requests.
+            # Never advance the coverage checkpoint for a partially processed batch.
+            if len(batches) <= 4:
+                for batch in batches:
+                    try:
+                        compacted = summarize_conversation_context(candidate, batch, db, user_id)
+                    except Exception as exc:
+                        log.warning("conversation memory compaction failed: %s", type(exc).__name__)
+                        compacted = None
+                    if not compacted:
+                        break
+                    candidate = compacted
+                else:
+                    if candidate:
+                        summary, covered, status = candidate, boundary, "updated"
+            else:
+                status = "deferred_large_transcript"
+            if status == "updated" and replace_from_message_id is None:
+                # Model calls release the DB transaction. Compare the whole source
+                # snapshot while holding the conversation lock before publishing.
+                locked = db.scalar(select(AssistantConversation).where(
+                    AssistantConversation.id == conversation_id, AssistantConversation.user_id == user_id,
+                    AssistantConversation.deleted_at.is_(None)).with_for_update())
+                current = list(db.scalars(select(AssistantMessage).where(
+                    AssistantMessage.conversation_id == conversation_id, AssistantMessage.user_id == user_id,
+                ).order_by(AssistantMessage.created_at, AssistantMessage.id)).all())
+                if locked is None or memory.transcript_hash(current) != snapshot_hash:
+                    db.rollback()
+                    raise HTTPException(409, "对话上下文已经变化，请基于最新消息重新提问")
+                locked.context_summary = summary
+                locked.summary_through_message_id = rows[covered - 1].id
+                locked.summary_updated_at = datetime.now(timezone.utc)
+                locked.summary_metadata = {"schema_version": memory.SCHEMA_VERSION,
+                    "covered_messages": covered, "source_hash": memory.transcript_hash(rows[:covered])}
                 db.commit()
-
-        oldest_recent = recent_rows[0]
-        older_query = (
-            select(AssistantMessage)
-            .where(
-                AssistantMessage.user_id == user_id,
-                AssistantMessage.conversation_id == conversation_id,
-                message_before(oldest_recent),
-            )
-            .order_by(AssistantMessage.created_at, AssistantMessage.id)
-        )
-        if cursor is not None:
-            older_query = older_query.where(message_after(cursor))
-        older_rows = db.scalars(older_query).all()
-        should_summarize = bool(older_rows) and (
-            not summary or len(older_rows) >= SUMMARY_REFRESH_MESSAGES
-        )
-        if should_summarize:
-            source_messages = [
-                context for item in older_rows
-                if (context := message_context(item)) is not None
-            ]
-            compacted = summarize_conversation_context(summary, source_messages, db, user_id)
-            if compacted is not None:
-                summary = compacted
-                cursor = older_rows[-1]
-                conversation.context_summary = compacted or None
-                conversation.summary_through_message_id = cursor.id if compacted else None
-                conversation.summary_updated_at = datetime.now(timezone.utc) if compacted else None
-                db.commit()
-                # If the model decided there was nothing durable to retain, keep the
-                # source messages in the raw context rather than dropping them.
-                if compacted:
-                    older_rows = []
-
-        if summary:
-            history = [summary_message(summary)] + [
-                context for item in [*older_rows, *recent_rows]
-                if (context := message_context(item)) is not None
-            ]
-        elif older_rows:
-            # Summarization is best-effort. On first-compaction failure, retain a
-            # bounded raw window; the full transcript remains available in storage.
-            fallback = list(reversed(db.scalars(
-                select(AssistantMessage)
-                .where(
-                    AssistantMessage.user_id == user_id,
-                    AssistantMessage.conversation_id == conversation_id,
-                )
-                .order_by(AssistantMessage.created_at.desc(), AssistantMessage.id.desc())
-                .limit(SUMMARY_FALLBACK_MESSAGES)
-            ).all()))
-            history = [context for item in fallback if (context := message_context(item)) is not None]
-
+    history = memory.assemble(rows, contexts, state, question=question, summary=summary,
+                              covered=covered, budget=budget, summary_status=status)
+    if trace is not None:
+        trace.add_step("context", "会话上下文装配", summary=history.manifest)
     db.rollback()
     return history
 
@@ -331,6 +306,7 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
         conversation.context_summary = None
         conversation.summary_through_message_id = None
         conversation.summary_updated_at = None
+        conversation.summary_metadata = None
 
     first_user_message = db.scalar(
         select(AssistantMessage.id)
@@ -378,12 +354,17 @@ def save_question_result(db: Db, conversation_id: uuid.UUID, user_id: uuid.UUID,
             "pending_operation": result.get("pending_operation"),
             "operation_receipts": result.get("operation_receipts", []),
             "_literal_sources": result.get("_literal_sources", []),
+            "_finish_reason": result.get("_finish_reason"),
         },
         created_at=assistant_created_at,
     )
     conversation.updated_at = assistant_created_at
     db.add_all([user_message, assistant_message])
     db.flush()
+    memory_rows = list(db.scalars(select(AssistantMessage).where(
+        AssistantMessage.conversation_id == conversation.id, AssistantMessage.user_id == user_id,
+    ).order_by(AssistantMessage.created_at, AssistantMessage.id)).all())
+    memory.sync_memory(db, conversation, memory_rows)
     # 只记提问长度与是否重问，不落问题原文。
     record_event(
         db, user_id, AuditAction.CREATE, AuditEntityType.ASSISTANT_MESSAGE, user_message.id,
@@ -445,6 +426,7 @@ def delete_conversation(conversation_id: uuid.UUID, db: Db, user_id: UserId) -> 
     conversation = owned_conversation(db, conversation_id, user_id)
     conversation.deleted_at = datetime.now(timezone.utc)
     conversation.updated_at = conversation.deleted_at
+    memory.clear_memory(db, conversation)
     record_event(db, user_id, AuditAction.DELETE, AuditEntityType.CONVERSATION, conversation.id)
     db.commit()
 
@@ -496,10 +478,12 @@ def delete_message_and_following(conversation_id: uuid.UUID, message_id: uuid.UU
     conversation.context_summary = None
     conversation.summary_through_message_id = None
     conversation.summary_updated_at = None
+    conversation.summary_metadata = None
     messages = db.scalars(select(AssistantMessage).where(
         AssistantMessage.user_id == user_id,
         AssistantMessage.conversation_id == conversation_id,
     ).order_by(AssistantMessage.created_at, AssistantMessage.id)).all()
+    memory.sync_memory(db, conversation, list(messages))
     if not messages:
         conversation.title = "新对话"
     conversation.updated_at = datetime.now(timezone.utc)
@@ -534,7 +518,7 @@ def execute_question(conversation_id: uuid.UUID, body: QuestionInput, db: Db, us
     trace = TraceRecorder("conversation", user_id, None, conversation_id)
     try:
         check_limit(user_id, "assistant", limit=10)
-        history = load_question_history(db, conversation_id, user_id, body.replace_from_message_id)
+        history = load_question_history(db, conversation_id, user_id, body.replace_from_message_id, question=question, trace=trace)
         # A selected target is a server fact, never an authority assertion in model history.
         if turn.selected_id and not turn.confirmed:
             history = [*history, {"role": "user", "content": "本轮继续执行：" + turn.intent.target_title + "；请按该名称定位并读取。"}]

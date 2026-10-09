@@ -452,6 +452,7 @@ class AssistantConversation(Base):
     context_summary: Mapped[str | None] = mapped_column(Text)
     summary_through_message_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     summary_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    summary_metadata: Mapped[dict | None] = mapped_column(JSONB)
 
 
 class AssistantMessage(Base):
@@ -465,6 +466,39 @@ class AssistantMessage(Base):
     conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     role: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     content: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class AssistantMemory(Base):
+    __tablename__ = "pkm_assistant_memories"
+    __table_args__ = (Index("ix_assistant_memories_user", "user_id", "conversation_id"),)
+
+    conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    transcript_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    through_message_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    state: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
+class AssistantArtifact(Base):
+    __tablename__ = "pkm_assistant_artifacts"
+    __table_args__ = (
+        UniqueConstraint("conversation_id", "source_message_id", "label", name="uq_assistant_artifact_source"),
+        Index("ix_assistant_artifacts_scope", "user_id", "conversation_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=new_id)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    kind: Mapped[str] = mapped_column(String(24), nullable=False)
+    label: Mapped[str] = mapped_column(String(120), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    digest: Mapped[str] = mapped_column(String(64), nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    completeness: Mapped[str] = mapped_column(String(16), nullable=False, default="unknown")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
